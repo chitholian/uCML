@@ -109,8 +109,27 @@ for(i:int in 1 to n by 2) {
 ```
 
 ## Compilation and Running
+To compile this program you need `flex`, `gcc`, `make` be installed.
+
+For `Ubuntu` and its derivatives:
+
 ```
-NOT IMPLEMENTED YET
+sudo apt install gcc make flex
 ```
 
+For `Fedora`, `Red Hat`, `CentOS` :
+
+```
+sudo dnf install flex make gcc || sudo yum install flex make gcc
+```
+
+From Project Root Directory Run:
+
+```
+make build
+```
+
+It will create a folder named `build` and inside that folder the compiled binaries will reside.
+
+Run `make help` for further info.
  
