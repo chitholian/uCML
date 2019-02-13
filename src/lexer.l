@@ -41,10 +41,12 @@ RETURN              return
 EXTERN              extern
 BY                  by
 DEF                 def
+TO                  to
 
     // Data Types:
 INT                 int
 DOUBLE              double
+VOID                void
 
     // Relational Operators:
 REL_EQ              ==
@@ -100,9 +102,11 @@ ANY                 .
 {EXTERN}            { handleToken("EXTERN"); }
 {BY}                { handleToken("BY"); }
 {DEF}               { handleToken("DEF"); }
+{TO}                { handleToken("TO"); }
 
 {INT}               { handleToken("INT"); }
 {DOUBLE}            { handleToken("DOUBLE"); }
+{VOID}              { handleToken("VOID"); }
 
 {FUN_ECHO}          { handleToken("FUN_ECHO"); }
 
