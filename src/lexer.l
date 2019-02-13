@@ -1,143 +1,177 @@
-    /**************************\
-    *      ATIKUR RAHMAN       *
-    *     CSE 2015 - 2016      *
-    * University of Chittagong *
-    \**************************/
-
-%option noyywrap
-    // Prefix; Atik, Shafkat, Foysal.
-%option prefix="ASF_"
-
 %{
-    #include <stdio.h>
+   #include<stdio.h>
+   #include<string.h>
 %}
-    int line_number = 1; // Start from first line.
 
-    /**
-    * A function to do something with the recognized token. 
-    * For example print the token.
-    * @arg: The recognized token.
-    */
-    void handleToken(char*);
+  int line_number = 1;
+  void yyerror(char* msg);
+  void handleToken(char* token);
+  char * output; 
 
-    /**
-    * A method to show analyzer error.
-    * @arg: The error message.
-    */
-    void yyerror(char*);
-
-
-    // Now make some patterns for our recognizable lexemes.
-
-DIGIT               [0-9]
-LETTER              [a-zA-Z]
-ALPHANUMERIC        {LETTER}|{DIGIT}
-
-    // Identifier: Only alphanumeric and underscore, no leading digit is allowed.
-ID                  (_|{LETTER})+({ALPHANUMERIC}|_)*
-    
-    // Types:
-DATA_TYPE           int|double
-TYPE_NAME           void|{DATA_TYPE}
-
-    // Built-In functions:
-FUN_ECHO            echo
-
-BUILT_IN            {FUN_ECHO}
-
-    // Reserved words:
-RESERVED            if|else|for|return|extern|by|def|to
-
-
-    // Relational Operators:
-OP_REL              ==|!=|<|>|<=|>=
-
-    // Arithematic Operators:
-OP_ARITH            "+"|"-"|"*"|"/"|"%"
-
-    // Assignment Operators and Separators:
-OP_SEPA             =>|:|=|,
-
-    // Bracket Pairs:
-BRACKET             "("|")"|"{"|"}"|"["|"]"
-
-    // Integer number: Allow no leading zero except for zero itself.
-CONST_INT           0|([1-9]+{DIGIT}*)
-
-    // Floating point number.
-CONST_FLOAT         ({CONST_INT})?\.{CONST_INT}
-
-    // Also allow scientific notation.
-CONST_SCI           ({CONST_INT}|{CONST_FLOAT})(e|E)("-"|"+")?{CONST_INT}
-
-NUMBER              {CONST_SCI}|{CONST_FLOAT}|{CONST_INT}
-
-    // Extras:
-LF                  "\n"
-CR                  "\r"
-FF                  "\f"
-TAB                 "\t"
-SPACE               " "
-WHITESPACE          {CR}|{FF}|{TAB}|{SPACE}|{LF}
-ANY_CHAR            .
-
+reserved def|if|else|for|in|to|return|by
+modifier extern
+arithmetic_operator "+"|"-"|"*"|"/"|"%"
+relational_operator "<"|">"|"<="|">="|"!="|"=="
+comma_operator ,
+colon_operator :
+lamba_operator =>
+assignment_operator =
+bracket "("|")"|"{"|"}"|"["|"]"
+datatypes int|double|void
+digit [0-9]
+digits {digit}+
+Float {digits}("."{digits})?
+Double {digits}("."{digits})?(([Ee][+-])?{digits}("."{digits})?)?
+letter [A-Za-z]
+id ({letter}|"_")({letter}|{digit}|"_"|"-")*
+whitespace [ \t\v\f\r]+
+Built_in_func "echo"
+NEW_LINE "\n"
+other .
 %%
 
-{RESERVED}          { handleToken("Reserved word"); }
+{reserved} { handleToken("reserved_word"); }
 
-{TYPE_NAME}         { handleToken("Data/return type"); }
+{modifier} { handleToken("Modifier"); }
 
-{BUILT_IN}          { handleToken("Built-in function"); }
+{datatypes} {
+              if(strcmp(yytext,"int")==0)
+             {
+               handleToken("Type_Integer");
+             }
+              else if(strcmp(yytext,"double")==0)
+             {
+               handleToken("Type_Double");
+             }
+              else if(strcmp(yytext,"void")==0)
+             {
+               handleToken("Type_void");
+             }
+            }
+{bracket} {
+              if(strcmp(yytext,"(")==0)
+             {
+               handleToken("Left_Parantheses");
+             }
+              else if(strcmp(yytext,")")==0)
+             {
+               handleToken("Right_Parantheses");
+             }
+              else if(strcmp(yytext,"{")==0)
+             {
+               handleToken("Left_Braces");
+             }
+              else if(strcmp(yytext,"}")==0)
+             {
+               handleToken("Right_Braces");
+             }
+              else if(strcmp(yytext,"[")==0)
+             {
+               handleToken("Left_Box_Bracket");
+             }
+              else if(strcmp(yytext,"]")==0)
+             {
+               handleToken("Right_Box_Bracket");
+             }
 
-{OP_REL}            { handleToken("Relational operator"); }
+          }
 
-{OP_ARITH}          { handleToken("Arithematic operator"); }
+{arithmetic_operator} {
+         if(strcmp(yytext,"+")==0)
+            {
+              handleToken("Addition_operator");
+            }
+         else if(strcmp(yytext,"-")==0)
+            {
+              handleToken("Subtraction_operator");
+            }
+         else if(strcmp(yytext,"*")==0)
+            {
+              handleToken("Multiplication_operator");
+            }
+         else if(strcmp(yytext,"/")==0)
+            {
+              handleToken("Division_operator");
+            }
+         else if(strcmp(yytext,"%")==0)
+            {
+              handleToken("Modulus_operator");
+            }
+           }
 
-{OP_SEPA}           { handleToken("Assignment or separator"); }
+{relational_operator} {
+         if(strcmp(yytext,"<")==0)
+            {
+              handleToken("TCLT");
+            }
+         else if(strcmp(yytext,">")==0)
+            {
+              handleToken("TCGT");
+            }
+         else if(strcmp(yytext,"<=")==0)
+            {
+              handleToken("TCLE");
+            }
+         else if(strcmp(yytext," >= ")==0)
+            {
+              handleToken("TCGE");
+            }
+         else if(strcmp(yytext,"!=")==0)
+            {
+              handleToken("TCNE");
+            }
+         else if(strcmp(yytext,"==")==0)
+            {
+              handleToken("TCEQ");
+            }
+                         }
 
-{BRACKET}           { handleToken("Bracket"); }
-    
-{NUMBER}            { handleToken("Number"); }
+{digits} {handleToken("integer");}
 
-{ID}                { handleToken("Identifier"); }
+{Float} {handleToken("Fractional_number");}
 
-{LF}                { line_number++; }
+{Double} {handleToken("Exponential_number");}
 
-{WHITESPACE}        { /* Just ignore them. */ }
+{Built_in_func} {handleToken("Built_in_function");}
 
-{ANY_CHAR}          { yyerror("Unknown Character"); }
+{id}     {handleToken("identifier");}
+
+"\""{letter}+"\"" {handleToken("string");}
+
+{whitespace} {/* Ignorable */}
+
+{NEW_LINE} { line_number++; }
+
+{comma_operator} {handleToken("COMMA");}
+{colon_operator} {handleToken("COLON");}
+{lamba_operator} {handleToken("LAMBDA");}
+{assignment_operator} {handleToken("Assignment");}
+
+{other} {yyerror("Unknown Character");}
 
 %%
+int main(int argc, char** argv)
+{
 
-/**
-* This is the main function where the program starts from.
-*/
-int main(int argc, char **argv){
-
-    // Check if a file is provided then input from it.
-    if(argc == 2){
-        yyin = fopen(argv[1], "r");
-        
-        // Show error if file open failed.
-        if(!yyin) {
-            fprintf(stderr, "Cannot open the specified file: %s, input from stdin.\n", argv[1]);
-        }
+  if(argc==2) {
+      yyin = fopen(argv[1],"r");
+      if(!yyin) {
+         fprintf(stderr, "Cannot open the specified file: %s, input from stdin.\n",argv[1]);
+       }
     }
-
-    // Start analyzer.
-    yylex();
-
-    // Close input file (or stdin).
-    fclose(yyin);
-
-    // return success.
-    return 0;
+  
+  yylex();
+  fclose(yyin);
+  return 0;
 }
 
 void yyerror(char *msg) {
-    fprintf(stderr, "Error Message: \"%s\" in line number %d, Token: \"%s\"\n", msg, line_number, yytext);
-}
+     fprintf(stderr,"Error Message: \"%s\" in line number %d, Token: \"%s\"\n", msg,line_number,yytext);
+   }
 
 void handleToken(char *token) {
-    printf("%25s : %-25s on line %d\n", token, yytext, line_number);
-}
+    printf("%25s : %-25s on line %d\n",token,yytext,line_number);
+    yyout = fopen("lexer.output","a");
+    fprintf(yyout,"%25s : %-25s on line %d\n",token,yytext,line_number);
+    fclose(yyout);
+   }
