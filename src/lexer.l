@@ -1,3 +1,9 @@
+    /**************************\
+    *      ATIKUR RAHMAN       *
+    *     CSE 2015 - 2016      *
+    * University of Chittagong *
+    \**************************/
+
 %option noyywrap
 
 %{
@@ -67,7 +73,7 @@ L_BRACE             "{"
 R_BRACE             "}"
 COMMA               ","
     
-    // Integer number: Don't allow leading zero.
+    // Integer number: Allows leading zeros.
 CONST_INT           {DIGIT}+
     
 CONST_DOUBLE        ({CONST_INT})?\.{CONST_INT}

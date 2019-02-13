@@ -21,7 +21,7 @@ help:
 	@echo To clean up build folder run:
 	@echo "	make clean"
 	@echo To test lexical anlyzer run:
-	@echo "	./build/uCMLexer [INPUT FILE]"
+	@echo "	./$(OUT)/$(LEXER) [INPUT FILE]"
 	@echo To see this help run:
 	@echo "	make help"
 
