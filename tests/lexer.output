@@ -1,0 +1,660 @@
+Trying to test lexical analyzer using input file tests/lexer.input
+               Identifier : x                         on line 1
+  Assignment or separator : :                         on line 1
+         Data/return type : int                       on line 1
+               Identifier : y                         on line 2
+  Assignment or separator : :                         on line 2
+         Data/return type : double                    on line 2
+  Assignment or separator : =                         on line 2
+                   Number : 1.0                       on line 2
+               Identifier : x                         on line 4
+  Assignment or separator : :                         on line 4
+         Data/return type : int                       on line 4
+  Assignment or separator : =                         on line 4
+               Identifier : a                         on line 4
+     Arithematic operator : *                         on line 4
+                   Number : 5                         on line 4
+     Arithematic operator : +                         on line 4
+                   Number : 5                         on line 4
+     Arithematic operator : /                         on line 4
+                   Number : 5                         on line 4
+     Arithematic operator : +                         on line 4
+                  Bracket : (                         on line 4
+                   Number : 100                       on line 4
+     Arithematic operator : *                         on line 4
+                   Number : 7                         on line 4
+                  Bracket : )                         on line 4
+            Reserved word : def                       on line 5
+               Identifier : square                    on line 5
+                  Bracket : (                         on line 5
+               Identifier : x                         on line 5
+  Assignment or separator : :                         on line 5
+         Data/return type : int                       on line 5
+                  Bracket : )                         on line 5
+  Assignment or separator : :                         on line 5
+         Data/return type : int                       on line 5
+  Assignment or separator : =>                        on line 5
+                  Bracket : {                         on line 5
+            Reserved word : return                    on line 5
+               Identifier : x                         on line 5
+     Arithematic operator : *                         on line 5
+               Identifier : x                         on line 5
+                  Bracket : }                         on line 5
+            Reserved word : def                       on line 6
+               Identifier : sumOfSquares              on line 6
+                  Bracket : (                         on line 6
+               Identifier : x                         on line 6
+  Assignment or separator : :                         on line 6
+         Data/return type : int                       on line 6
+  Assignment or separator : ,                         on line 6
+               Identifier : y                         on line 6
+  Assignment or separator : :                         on line 6
+         Data/return type : int                       on line 6
+                  Bracket : )                         on line 6
+  Assignment or separator : :                         on line 6
+         Data/return type : int                       on line 6
+  Assignment or separator : =>                        on line 6
+                  Bracket : {                         on line 6
+            Reserved word : return                    on line 7
+               Identifier : square                    on line 7
+                  Bracket : (                         on line 7
+               Identifier : x                         on line 7
+                  Bracket : )                         on line 7
+     Arithematic operator : +                         on line 7
+               Identifier : square                    on line 7
+                  Bracket : (                         on line 7
+               Identifier : y                         on line 7
+                  Bracket : )                         on line 7
+                  Bracket : }                         on line 8
+        Built-in function : echo                      on line 9
+                  Bracket : (                         on line 9
+               Identifier : sumOfSquares              on line 9
+                  Bracket : (                         on line 9
+                   Number : 4                         on line 9
+  Assignment or separator : ,                         on line 9
+                   Number : 5                         on line 9
+                  Bracket : )                         on line 9
+                  Bracket : )                         on line 9
+                  Bracket : (                         on line 11
+               Identifier : x                         on line 11
+  Assignment or separator : :                         on line 11
+         Data/return type : int                       on line 11
+  Assignment or separator : ,                         on line 11
+               Identifier : y                         on line 11
+  Assignment or separator : :                         on line 11
+         Data/return type : int                       on line 11
+  Assignment or separator : ,                         on line 11
+               Identifier : z                         on line 11
+  Assignment or separator : :                         on line 11
+         Data/return type : double                    on line 11
+                  Bracket : )                         on line 11
+  Assignment or separator : :                         on line 11
+         Data/return type : int                       on line 11
+  Assignment or separator : =>                        on line 11
+                  Bracket : {                         on line 11
+            Reserved word : return                    on line 11
+               Identifier : x                         on line 11
+     Arithematic operator : *                         on line 11
+               Identifier : y                         on line 11
+     Arithematic operator : *                         on line 11
+               Identifier : z                         on line 11
+                  Bracket : }                         on line 11
+        Built-in function : echo                      on line 13
+                  Bracket : (                         on line 13
+                  Bracket : (                         on line 13
+                   Number : 4                         on line 13
+  Assignment or separator : ,                         on line 13
+                   Number : 5                         on line 13
+  Assignment or separator : ,                         on line 13
+                   Number : 6.0                       on line 13
+                  Bracket : )                         on line 13
+     Arithematic operator : +                         on line 13
+                  Bracket : (                         on line 13
+                   Number : 3                         on line 13
+  Assignment or separator : ,                         on line 13
+                   Number : 5                         on line 13
+  Assignment or separator : ,                         on line 13
+                   Number : 4.0                       on line 13
+                  Bracket : )                         on line 13
+                  Bracket : )                         on line 13
+            Reserved word : def                       on line 15
+               Identifier : comparison_test           on line 15
+                  Bracket : (                         on line 15
+               Identifier : x                         on line 15
+  Assignment or separator : :                         on line 15
+         Data/return type : int                       on line 15
+  Assignment or separator : ,                         on line 15
+               Identifier : y                         on line 15
+  Assignment or separator : :                         on line 15
+         Data/return type : int                       on line 15
+                  Bracket : )                         on line 15
+  Assignment or separator : :                         on line 15
+         Data/return type : int                       on line 15
+  Assignment or separator : =>                        on line 15
+                  Bracket : {                         on line 15
+               Identifier : printi                    on line 16
+                  Bracket : (                         on line 16
+               Identifier : x                         on line 16
+      Relational operator : ==                        on line 16
+               Identifier : y                         on line 16
+                  Bracket : )                         on line 16
+               Identifier : printi                    on line 17
+                  Bracket : (                         on line 17
+               Identifier : x                         on line 17
+      Relational operator : !=                        on line 17
+               Identifier : y                         on line 17
+                  Bracket : )                         on line 17
+               Identifier : printi                    on line 18
+                  Bracket : (                         on line 18
+               Identifier : x                         on line 18
+      Relational operator : >=                        on line 18
+               Identifier : y                         on line 18
+                  Bracket : )                         on line 18
+               Identifier : printi                    on line 19
+                  Bracket : (                         on line 19
+               Identifier : x                         on line 19
+      Relational operator : <=                        on line 19
+               Identifier : y                         on line 19
+                  Bracket : )                         on line 19
+               Identifier : printi                    on line 20
+                  Bracket : (                         on line 20
+               Identifier : x                         on line 20
+      Relational operator : >                         on line 20
+               Identifier : y                         on line 20
+                  Bracket : )                         on line 20
+               Identifier : printi                    on line 21
+                  Bracket : (                         on line 21
+               Identifier : x                         on line 21
+      Relational operator : <                         on line 21
+               Identifier : y                         on line 21
+                  Bracket : )                         on line 21
+            Reserved word : return                    on line 22
+               Identifier : x                         on line 22
+      Relational operator : <                         on line 22
+               Identifier : y                         on line 22
+                  Bracket : }                         on line 23
+        Built-in function : echo                      on line 24
+                  Bracket : (                         on line 24
+               Identifier : comparison_test           on line 24
+                  Bracket : (                         on line 24
+                   Number : 10                        on line 24
+  Assignment or separator : ,                         on line 24
+                   Number : 10                        on line 24
+                  Bracket : )                         on line 24
+                  Bracket : )                         on line 24
+            Reserved word : if                        on line 26
+                  Bracket : (                         on line 26
+               Identifier : x                         on line 26
+      Relational operator : >                         on line 26
+               Identifier : y                         on line 26
+                  Bracket : )                         on line 26
+                  Bracket : {                         on line 27
+               Identifier : foo                       on line 27
+                  Bracket : (                         on line 27
+               Identifier : x                         on line 27
+                  Bracket : )                         on line 27
+                  Bracket : }                         on line 27
+            Reserved word : else                      on line 28
+                  Bracket : {                         on line 29
+               Identifier : bar                       on line 29
+                  Bracket : (                         on line 29
+               Identifier : y                         on line 29
+                  Bracket : )                         on line 29
+                  Bracket : }                         on line 29
+            Reserved word : for                       on line 30
+                  Bracket : (                         on line 30
+               Identifier : identifier                on line 30
+               Identifier : in                        on line 30
+               Identifier : start                     on line 30
+            Reserved word : to                        on line 30
+               Identifier : end                       on line 30
+                  Bracket : [                         on line 30
+            Reserved word : by                        on line 30
+               Identifier : step                      on line 30
+                  Bracket : ]                         on line 30
+                  Bracket : )                         on line 30
+                  Bracket : {                         on line 30
+               Identifier : statements                on line 30
+                  Bracket : }                         on line 30
+               Identifier : p                         on line 31
+  Assignment or separator : :                         on line 31
+         Data/return type : int                       on line 31
+  Assignment or separator : =                         on line 31
+                   Number : 1                         on line 31
+            Reserved word : for                       on line 32
+                  Bracket : (                         on line 32
+               Identifier : i                         on line 32
+  Assignment or separator : :                         on line 32
+         Data/return type : int                       on line 32
+               Identifier : in                        on line 32
+                   Number : 1                         on line 32
+            Reserved word : to                        on line 32
+               Identifier : n                         on line 32
+                  Bracket : )                         on line 32
+                  Bracket : {                         on line 32
+        Built-in function : echo                      on line 33
+                  Bracket : (                         on line 33
+               Identifier : p                         on line 33
+                  Bracket : )                         on line 33
+               Identifier : p                         on line 34
+  Assignment or separator : =                         on line 34
+               Identifier : p                         on line 34
+     Arithematic operator : +                         on line 34
+                   Number : 1                         on line 34
+                  Bracket : }                         on line 35
+               Identifier : p                         on line 35
+  Assignment or separator : :                         on line 35
+         Data/return type : int                       on line 35
+  Assignment or separator : =                         on line 35
+                   Number : 1                         on line 35
+            Reserved word : for                       on line 36
+                  Bracket : (                         on line 36
+               Identifier : i                         on line 36
+  Assignment or separator : :                         on line 36
+         Data/return type : int                       on line 36
+               Identifier : in                        on line 36
+                   Number : 1                         on line 36
+            Reserved word : to                        on line 36
+               Identifier : n                         on line 36
+            Reserved word : by                        on line 36
+                   Number : 2                         on line 36
+                  Bracket : )                         on line 36
+                  Bracket : {                         on line 36
+        Built-in function : echo                      on line 37
+                  Bracket : (                         on line 37
+               Identifier : p                         on line 37
+                  Bracket : )                         on line 37
+               Identifier : p                         on line 38
+  Assignment or separator : =                         on line 38
+               Identifier : p                         on line 38
+     Arithematic operator : +                         on line 38
+                   Number : 1                         on line 38
+                  Bracket : }                         on line 39
+            Reserved word : extern                    on line 41
+               Identifier : printi                    on line 41
+                  Bracket : (                         on line 41
+               Identifier : val                       on line 41
+  Assignment or separator : :                         on line 41
+         Data/return type : int                       on line 41
+                  Bracket : )                         on line 41
+  Assignment or separator : :                         on line 41
+         Data/return type : void                      on line 41
+               Identifier : x                         on line 43
+  Assignment or separator : :                         on line 43
+         Data/return type : int                       on line 43
+               Identifier : x                         on line 44
+  Assignment or separator : =                         on line 44
+                   Number : 5                         on line 44
+     Arithematic operator : +                         on line 44
+                   Number : 6                         on line 44
+     Arithematic operator : -                         on line 44
+                   Number : 5                         on line 44
+     Arithematic operator : /                         on line 44
+                   Number : 5                         on line 44
+     Arithematic operator : +                         on line 44
+                   Number : 9                         on line 44
+        Built-in function : echo                      on line 45
+                  Bracket : (                         on line 45
+               Identifier : x                         on line 45
+                  Bracket : )                         on line 45
+            Reserved word : def                       on line 47
+               Identifier : do_math                   on line 47
+                  Bracket : (                         on line 47
+               Identifier : a                         on line 47
+  Assignment or separator : :                         on line 47
+         Data/return type : int                       on line 47
+                  Bracket : )                         on line 47
+  Assignment or separator : :                         on line 47
+         Data/return type : int                       on line 47
+  Assignment or separator : =>                        on line 47
+                  Bracket : {                         on line 47
+               Identifier : x                         on line 48
+  Assignment or separator : :                         on line 48
+         Data/return type : int                       on line 48
+  Assignment or separator : =                         on line 48
+               Identifier : a                         on line 48
+     Arithematic operator : *                         on line 48
+                   Number : 5                         on line 48
+     Arithematic operator : +                         on line 48
+                   Number : 5                         on line 48
+     Arithematic operator : /                         on line 48
+                   Number : 5                         on line 48
+     Arithematic operator : +                         on line 48
+                  Bracket : (                         on line 48
+                   Number : 100                       on line 48
+     Arithematic operator : *                         on line 48
+                   Number : 7                         on line 48
+                  Bracket : )                         on line 48
+            Reserved word : return                    on line 49
+               Identifier : x                         on line 49
+                  Bracket : }                         on line 50
+        Built-in function : echo                      on line 52
+                  Bracket : (                         on line 52
+               Identifier : do_math                   on line 52
+                  Bracket : (                         on line 52
+               Identifier : do_math                   on line 52
+                  Bracket : (                         on line 52
+                   Number : 10                        on line 52
+                  Bracket : )                         on line 52
+                  Bracket : )                         on line 52
+                  Bracket : )                         on line 52
+        Built-in function : echo                      on line 53
+                  Bracket : (                         on line 53
+               Identifier : do_math                   on line 53
+                  Bracket : (                         on line 53
+                   Number : 10                        on line 53
+                  Bracket : )                         on line 53
+                  Bracket : )                         on line 53
+            Reserved word : def                       on line 56
+               Identifier : square                    on line 56
+                  Bracket : (                         on line 56
+               Identifier : x                         on line 56
+  Assignment or separator : :                         on line 56
+         Data/return type : int                       on line 56
+                  Bracket : )                         on line 56
+  Assignment or separator : :                         on line 56
+         Data/return type : int                       on line 56
+  Assignment or separator : =>                        on line 56
+                  Bracket : {                         on line 56
+            Reserved word : return                    on line 56
+               Identifier : x                         on line 56
+     Arithematic operator : *                         on line 56
+               Identifier : x                         on line 56
+                  Bracket : }                         on line 56
+            Reserved word : def                       on line 58
+               Identifier : sumOfSquares              on line 58
+                  Bracket : (                         on line 58
+               Identifier : x                         on line 58
+  Assignment or separator : :                         on line 58
+         Data/return type : int                       on line 58
+  Assignment or separator : ,                         on line 58
+               Identifier : y                         on line 58
+  Assignment or separator : :                         on line 58
+         Data/return type : int                       on line 58
+                  Bracket : )                         on line 58
+  Assignment or separator : :                         on line 58
+         Data/return type : int                       on line 58
+  Assignment or separator : =>                        on line 58
+                  Bracket : {                         on line 58
+            Reserved word : return                    on line 59
+               Identifier : square                    on line 59
+                  Bracket : (                         on line 59
+               Identifier : x                         on line 59
+                  Bracket : )                         on line 59
+     Arithematic operator : +                         on line 59
+               Identifier : square                    on line 59
+                  Bracket : (                         on line 59
+               Identifier : y                         on line 59
+                  Bracket : )                         on line 59
+                  Bracket : }                         on line 60
+        Built-in function : echo                      on line 61
+                  Bracket : (                         on line 61
+               Identifier : sumOfSquares              on line 61
+                  Bracket : (                         on line 61
+                   Number : 4                         on line 61
+  Assignment or separator : ,                         on line 61
+                   Number : 5                         on line 61
+                  Bracket : )                         on line 61
+                  Bracket : )                         on line 61
+                  Bracket : (                         on line 65
+               Identifier : x                         on line 65
+  Assignment or separator : :                         on line 65
+         Data/return type : int                       on line 65
+  Assignment or separator : ,                         on line 65
+               Identifier : y                         on line 65
+  Assignment or separator : :                         on line 65
+         Data/return type : int                       on line 65
+  Assignment or separator : ,                         on line 65
+               Identifier : z                         on line 65
+  Assignment or separator : :                         on line 65
+         Data/return type : double                    on line 65
+                  Bracket : )                         on line 65
+  Assignment or separator : :                         on line 65
+         Data/return type : int                       on line 65
+  Assignment or separator : =>                        on line 65
+                  Bracket : {                         on line 65
+            Reserved word : return                    on line 65
+               Identifier : x                         on line 65
+     Arithematic operator : *                         on line 65
+               Identifier : y                         on line 65
+     Arithematic operator : *                         on line 65
+               Identifier : z                         on line 65
+                  Bracket : }                         on line 65
+        Built-in function : echo                      on line 67
+                  Bracket : (                         on line 67
+                  Bracket : (                         on line 67
+                   Number : 4                         on line 67
+  Assignment or separator : ,                         on line 67
+                   Number : 5                         on line 67
+  Assignment or separator : ,                         on line 67
+                   Number : 6.0                       on line 67
+                  Bracket : )                         on line 67
+     Arithematic operator : +                         on line 67
+                  Bracket : (                         on line 67
+                   Number : 3                         on line 67
+  Assignment or separator : ,                         on line 67
+                   Number : 5                         on line 67
+  Assignment or separator : ,                         on line 67
+                   Number : 4.0                       on line 67
+                  Bracket : )                         on line 67
+                  Bracket : )                         on line 67
+            Reserved word : def                       on line 71
+               Identifier : comparison_test           on line 71
+                  Bracket : (                         on line 71
+               Identifier : x                         on line 71
+  Assignment or separator : :                         on line 71
+         Data/return type : int                       on line 71
+  Assignment or separator : ,                         on line 71
+               Identifier : y                         on line 71
+  Assignment or separator : :                         on line 71
+         Data/return type : int                       on line 71
+                  Bracket : )                         on line 71
+  Assignment or separator : :                         on line 71
+         Data/return type : int                       on line 71
+  Assignment or separator : =>                        on line 71
+                  Bracket : {                         on line 71
+               Identifier : printi                    on line 72
+                  Bracket : (                         on line 72
+               Identifier : x                         on line 72
+      Relational operator : ==                        on line 72
+               Identifier : y                         on line 72
+                  Bracket : )                         on line 72
+               Identifier : printi                    on line 73
+                  Bracket : (                         on line 73
+               Identifier : x                         on line 73
+      Relational operator : !=                        on line 73
+               Identifier : y                         on line 73
+                  Bracket : )                         on line 73
+               Identifier : printi                    on line 74
+                  Bracket : (                         on line 74
+               Identifier : x                         on line 74
+      Relational operator : >=                        on line 74
+               Identifier : y                         on line 74
+                  Bracket : )                         on line 74
+               Identifier : printi                    on line 75
+                  Bracket : (                         on line 75
+               Identifier : x                         on line 75
+      Relational operator : <=                        on line 75
+               Identifier : y                         on line 75
+                  Bracket : )                         on line 75
+               Identifier : printi                    on line 76
+                  Bracket : (                         on line 76
+               Identifier : x                         on line 76
+      Relational operator : >                         on line 76
+               Identifier : y                         on line 76
+                  Bracket : )                         on line 76
+               Identifier : printi                    on line 77
+                  Bracket : (                         on line 77
+               Identifier : x                         on line 77
+      Relational operator : <                         on line 77
+               Identifier : y                         on line 77
+                  Bracket : )                         on line 77
+            Reserved word : return                    on line 78
+               Identifier : x                         on line 78
+      Relational operator : <                         on line 78
+               Identifier : y                         on line 78
+                  Bracket : }                         on line 79
+        Built-in function : echo                      on line 82
+                  Bracket : (                         on line 82
+               Identifier : comparison_test           on line 82
+                  Bracket : (                         on line 82
+                   Number : 10                        on line 82
+  Assignment or separator : ,                         on line 82
+                   Number : 10                        on line 82
+                  Bracket : )                         on line 82
+                  Bracket : )                         on line 82
+            Reserved word : def                       on line 85
+               Identifier : f                         on line 85
+                  Bracket : (                         on line 85
+                  Bracket : )                         on line 85
+  Assignment or separator : :                         on line 85
+         Data/return type : int                       on line 85
+  Assignment or separator : =>                        on line 85
+                  Bracket : {                         on line 85
+               Identifier : x                         on line 86
+  Assignment or separator : :                         on line 86
+         Data/return type : int                       on line 86
+  Assignment or separator : =                         on line 86
+                   Number : 10                        on line 86
+            Reserved word : return                    on line 87
+               Identifier : x                         on line 87
+                  Bracket : }                         on line 88
+            Reserved word : extern                    on line 92
+               Identifier : printi                    on line 92
+                  Bracket : (                         on line 92
+               Identifier : val                       on line 92
+  Assignment or separator : :                         on line 92
+         Data/return type : int                       on line 92
+                  Bracket : )                         on line 92
+  Assignment or separator : :                         on line 92
+         Data/return type : int                       on line 92
+            Reserved word : def                       on line 94
+               Identifier : printstart                on line 94
+                  Bracket : (                         on line 94
+               Identifier : n                         on line 94
+  Assignment or separator : :                         on line 94
+         Data/return type : int                       on line 94
+                  Bracket : )                         on line 94
+  Assignment or separator : :                         on line 94
+         Data/return type : void                      on line 94
+  Assignment or separator : =>                        on line 94
+                  Bracket : {                         on line 94
+               Identifier : p                         on line 95
+  Assignment or separator : :                         on line 95
+         Data/return type : int                       on line 95
+  Assignment or separator : =                         on line 95
+                   Number : 1                         on line 95
+            Reserved word : for                       on line 96
+                  Bracket : (                         on line 96
+               Identifier : i                         on line 96
+  Assignment or separator : :                         on line 96
+         Data/return type : int                       on line 96
+               Identifier : in                        on line 96
+                   Number : 1                         on line 96
+            Reserved word : to                        on line 96
+               Identifier : n                         on line 96
+                  Bracket : )                         on line 96
+                  Bracket : {                         on line 96
+        Built-in function : echo                      on line 97
+                  Bracket : (                         on line 97
+               Identifier : p                         on line 97
+                  Bracket : )                         on line 97
+               Identifier : p                         on line 98
+  Assignment or separator : =                         on line 98
+               Identifier : p                         on line 98
+     Arithematic operator : +                         on line 98
+                   Number : 1                         on line 98
+                  Bracket : }                         on line 99
+                  Bracket : }                         on line 101
+               Identifier : printstart                on line 103
+                  Bracket : (                         on line 103
+                   Number : 4                         on line 103
+                  Bracket : )                         on line 103
+            Reserved word : extern                    on line 106
+               Identifier : printi                    on line 106
+                  Bracket : (                         on line 106
+               Identifier : val                       on line 106
+  Assignment or separator : :                         on line 106
+         Data/return type : int                       on line 106
+                  Bracket : )                         on line 106
+  Assignment or separator : :                         on line 106
+         Data/return type : int                       on line 106
+            Reserved word : def                       on line 108
+               Identifier : foo                       on line 108
+                  Bracket : (                         on line 108
+               Identifier : i                         on line 108
+  Assignment or separator : :                         on line 108
+         Data/return type : int                       on line 108
+                  Bracket : )                         on line 108
+  Assignment or separator : :                         on line 108
+         Data/return type : int                       on line 108
+  Assignment or separator : =>                        on line 108
+                  Bracket : {                         on line 108
+               Identifier : printi                    on line 108
+                  Bracket : (                         on line 108
+               Identifier : i                         on line 108
+                  Bracket : )                         on line 108
+            Reserved word : return                    on line 108
+                   Number : 0                         on line 108
+                  Bracket : }                         on line 108
+            Reserved word : def                       on line 109
+               Identifier : bar                       on line 109
+                  Bracket : (                         on line 109
+               Identifier : i                         on line 109
+  Assignment or separator : :                         on line 109
+         Data/return type : int                       on line 109
+                  Bracket : )                         on line 109
+  Assignment or separator : :                         on line 109
+         Data/return type : int                       on line 109
+  Assignment or separator : =>                        on line 109
+                  Bracket : {                         on line 109
+               Identifier : printi                    on line 109
+                  Bracket : (                         on line 109
+               Identifier : i                         on line 109
+                  Bracket : )                         on line 109
+            Reserved word : return                    on line 109
+                   Number : 1                         on line 109
+                  Bracket : }                         on line 109
+            Reserved word : def                       on line 111
+               Identifier : baz                       on line 111
+                  Bracket : (                         on line 111
+               Identifier : x                         on line 111
+  Assignment or separator : :                         on line 111
+         Data/return type : int                       on line 111
+  Assignment or separator : ,                         on line 111
+               Identifier : y                         on line 111
+  Assignment or separator : :                         on line 111
+         Data/return type : int                       on line 111
+                  Bracket : )                         on line 111
+  Assignment or separator : :                         on line 111
+         Data/return type : int                       on line 111
+  Assignment or separator : =>                        on line 111
+                  Bracket : {                         on line 111
+            Reserved word : if                        on line 112
+                  Bracket : (                         on line 112
+               Identifier : x                         on line 112
+      Relational operator : >                         on line 112
+               Identifier : y                         on line 112
+                  Bracket : )                         on line 112
+                  Bracket : {                         on line 113
+               Identifier : foo                       on line 113
+                  Bracket : (                         on line 113
+               Identifier : x                         on line 113
+                  Bracket : )                         on line 113
+                  Bracket : }                         on line 113
+            Reserved word : else                      on line 114
+                  Bracket : {                         on line 115
+               Identifier : bar                       on line 115
+                  Bracket : (                         on line 115
+               Identifier : y                         on line 115
+                  Bracket : )                         on line 115
+                  Bracket : }                         on line 115
+            Reserved word : return                    on line 117
+                   Number : 0                         on line 117
+                  Bracket : }                         on line 118
+               Identifier : baz                       on line 120
+                  Bracket : (                         on line 120
+                   Number : 30                        on line 120
+  Assignment or separator : ,                         on line 120
+                   Number : 10                        on line 120
+                  Bracket : )                         on line 120

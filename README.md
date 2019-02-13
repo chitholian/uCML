@@ -123,13 +123,10 @@ For `Fedora`, `Red Hat`, `CentOS` :
 sudo dnf install flex make gcc || sudo yum install flex make gcc
 ```
 
-From Project Root Directory Run:
+To see available options run the following command from the project root directory:
 
 ```
-make build
+make help
 ```
 
-It will create a folder named `build` and inside that folder the compiled binaries will reside.
-
-Run `make help` for further info.
  

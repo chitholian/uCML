@@ -5,6 +5,8 @@
     \**************************/
 
 %option noyywrap
+    // Prefix; Atik, Shafkat, Foysal.
+%option prefix="ASF_"
 
 %{
     #include <stdio.h>
@@ -29,59 +31,46 @@
 
 DIGIT               [0-9]
 LETTER              [a-zA-Z]
+ALPHANUMERIC        {LETTER}|{DIGIT}
 
-    // Disallow identifier to start with digit.
-ID                  (_|{LETTER})+({DIGIT}|{LETTER}|_)*
+    // Identifier: Only alphanumeric and underscore, no leading digit is allowed.
+ID                  (_|{LETTER})+({ALPHANUMERIC}|_)*
     
-    // Reserved words:  
-IF                  if
-ELSE                else
-FOR                 for
-RETURN              return
-EXTERN              extern
-BY                  by
-DEF                 def
-TO                  to
-
-    // Data Types:
-INT                 int
-DOUBLE              double
-VOID                void
-
-    // Relational Operators:
-REL_EQ              ==
-REL_NE              !=
-REL_LT              <
-REL_GT              >
-REL_LE              <=
-REL_GE              >=
-
-    // Arithematic Operators:
-OP_ADD              "+"
-OP_SUB              "-"
-OP_MUL              "*"
-OP_DIV              "/"
-OP_MOD              "%"
-
-    // Others:
-COLON               ":"
-LAMBDA              "=>"
-ASSIGN              "="
-L_PARAN             "("
-R_PARAN             ")"
-L_BRACK             "["
-R_BRACK             "]"
-L_BRACE             "{"
-R_BRACE             "}"
-COMMA               ","
-    
-    // Integer number: Allows leading zeros.
-CONST_INT           {DIGIT}+
-    
-CONST_DOUBLE        ({CONST_INT})?\.{CONST_INT}
+    // Types:
+DATA_TYPE           int|double
+TYPE_NAME           void|{DATA_TYPE}
 
     // Built-In functions:
 FUN_ECHO            echo
+
+BUILT_IN            {FUN_ECHO}
+
+    // Reserved words:
+RESERVED            if|else|for|return|extern|by|def|to
+
+
+    // Relational Operators:
+OP_REL              ==|!=|<|>|<=|>=
+
+    // Arithematic Operators:
+OP_ARITH            "+"|"-"|"*"|"/"|"%"
+
+    // Assignment Operators and Separators:
+OP_SEPA             =>|:|=|,
+
+    // Bracket Pairs:
+BRACKET             "("|")"|"{"|"}"|"["|"]"
+
+    // Integer number: Allow no leading zero except for zero itself.
+CONST_INT           0|([1-9]+{DIGIT}*)
+
+    // Floating point number.
+CONST_FLOAT         ({CONST_INT})?\.{CONST_INT}
+
+    // Also allow scientific notation.
+CONST_SCI           ({CONST_INT}|{CONST_FLOAT})(e|E)("-"|"+")?{CONST_INT}
+
+NUMBER              {CONST_SCI}|{CONST_FLOAT}|{CONST_INT}
 
     // Extras:
 LF                  "\n"
@@ -90,61 +79,33 @@ FF                  "\f"
 TAB                 "\t"
 SPACE               " "
 WHITESPACE          {CR}|{FF}|{TAB}|{SPACE}|{LF}
-
-ANY                 .
+ANY_CHAR            .
 
 %%
 
-{IF}                { handleToken("IF"); }
-{ELSE}              { handleToken("ELSE"); }
-{FOR}               { handleToken("FOR"); }
-{RETURN}            { handleToken("RETURN"); }
-{EXTERN}            { handleToken("EXTERN"); }
-{BY}                { handleToken("BY"); }
-{DEF}               { handleToken("DEF"); }
-{TO}                { handleToken("TO"); }
+{RESERVED}          { handleToken("Reserved word"); }
 
-{INT}               { handleToken("INT"); }
-{DOUBLE}            { handleToken("DOUBLE"); }
-{VOID}              { handleToken("VOID"); }
+{TYPE_NAME}         { handleToken("Data/return type"); }
 
-{FUN_ECHO}          { handleToken("FUN_ECHO"); }
+{BUILT_IN}          { handleToken("Built-in function"); }
 
-{REL_EQ}            { handleToken("REL_EQ"); }
-{REL_NE}            { handleToken("REL_NE"); }
-{REL_LT}            { handleToken("REL_LT"); }
-{REL_GT}            { handleToken("REL_GT"); }
-{REL_LE}            { handleToken("REL_LE"); }
-{REL_GE}            { handleToken("REL_GE"); }
+{OP_REL}            { handleToken("Relational operator"); }
 
-{OP_ADD}            { handleToken("OP_ADD"); }
-{OP_SUB}            { handleToken("OP_SUB"); }
-{OP_MUL}            { handleToken("OP_MUL"); }
-{OP_DIV}            { handleToken("OP_DIV"); }
-{OP_MOD}            { handleToken("OP_MOD"); }
+{OP_ARITH}          { handleToken("Arithematic operator"); }
 
-{COLON}             { handleToken("COLON"); }
-{LAMBDA}            { handleToken("LAMBDA"); }
-{ASSIGN}            { handleToken("ASSIGN"); }
+{OP_SEPA}           { handleToken("Assignment or separator"); }
 
-{L_PARAN}           { handleToken("L_PARAN"); }
-{R_PARAN}           { handleToken("R_PARAN"); }
-{L_BRACK}           { handleToken("L_BRACK"); }
-{R_BRACK}           { handleToken("R_BRACK"); }
-{L_BRACE}           { handleToken("L_BRACE"); }
-{R_BRACE}           { handleToken("R_BRACE"); }
-{COMMA}             { handleToken("COMMA"); }
+{BRACKET}           { handleToken("Bracket"); }
     
-{CONST_INT}         { handleToken("CONST_INT"); }
-{CONST_DOUBLE}      { handleToken("CONST_DOUBLE"); }
+{NUMBER}            { handleToken("Number"); }
 
-{ID}                { handleToken("ID"); }
+{ID}                { handleToken("Identifier"); }
 
 {LF}                { line_number++; }
 
 {WHITESPACE}        { /* Just ignore them. */ }
 
-{ANY}               { yyerror("Unknown Character"); }
+{ANY_CHAR}          { yyerror("Unknown Character"); }
 
 %%
 
@@ -156,6 +117,11 @@ int main(int argc, char **argv){
     // Check if a file is provided then input from it.
     if(argc == 2){
         yyin = fopen(argv[1], "r");
+        
+        // Show error if file open failed.
+        if(!yyin) {
+            fprintf(stderr, "Cannot open the specified file: %s, input from stdin.\n", argv[1]);
+        }
     }
 
     // Start analyzer.
@@ -173,5 +139,5 @@ void yyerror(char *msg) {
 }
 
 void handleToken(char *token) {
-    printf("Found token %16s : %-20s on line %d\n", token, yytext, line_number);
+    printf("%25s : %-25s on line %d\n", token, yytext, line_number);
 }
