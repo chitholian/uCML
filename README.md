@@ -62,7 +62,6 @@ echo(sumOfSquares(4,5))
 ```
 (x: int, y:int, z:double):int => { return x * y * z }
 
-echo((4,5,6.0) + (3,5,4.0))
 ```
 
 ### Logical Operators
@@ -109,24 +108,22 @@ for(i:int in 1 to n by 2) {
 ```
 
 ## Compilation and Running
-To compile this program you need `flex`, `gcc`, `make` be installed.
+To compile this program you need `flex`, `bison`, `gcc`, `make` be installed.
 
 For `Ubuntu` and its derivatives:
 
 ```
-sudo apt install gcc make flex
+sudo apt install gcc make flex bison
 ```
 
 For `Fedora`, `Red Hat`, `CentOS` :
 
 ```
-sudo dnf install flex make gcc || sudo yum install flex make gcc
+sudo dnf install flex make gcc bison || sudo yum install flex make gcc bison
 ```
 
-To see available options run the following command from the project root directory:
-
+To build, goto `src` directory and run:
 ```
-make help
+make
 ```
 
- 

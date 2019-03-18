@@ -5,26 +5,24 @@
     \**************************/
 
 %option noyywrap
-    // Prefix; Atik, Shafkat, Foysal.
-%option prefix="ASF_"
 
 %{
     #include <stdio.h>
+    #include "parser.h"
+    
+    int line_number = 1, column_number = 0; // Start from first line.
 %}
-    int line_number = 1; // Start from first line.
 
     /**
-    * A function to do something with the recognized token. 
-    * For example print the token.
-    * @arg: The recognized token.
-    */
-    void handleToken(char*);
-
-    /**
-    * A method to show analyzer error.
+    * A function to show analyzer error.
     * @arg: The error message.
     */
-    void yyerror(char*);
+    void yyerror(char const*);
+    
+    /**
+    * A function to increment the column number of a line, i.e. the cursor position.
+    */
+    void inc_column_number(void);
 
 
     // Now make some patterns for our recognizable lexemes.
@@ -35,31 +33,15 @@ ALPHANUMERIC        {LETTER}|{DIGIT}
 
     // Identifier: Only alphanumeric and underscore, no leading digit is allowed.
 ID                  (_|{LETTER})+({ALPHANUMERIC}|_)*
-    
-    // Types:
-DATA_TYPE           int|double
-TYPE_NAME           void|{DATA_TYPE}
-
-    // Built-In functions:
-FUN_ECHO            echo
-
-BUILT_IN            {FUN_ECHO}
-
-    // Reserved words:
-RESERVED            if|else|for|return|extern|by|def|to
-
-
-    // Relational Operators:
-OP_REL              ==|!=|<|>|<=|>=
 
     // Arithematic Operators:
-OP_ARITH            "+"|"-"|"*"|"/"|"%"
-
-    // Assignment Operators and Separators:
-OP_SEPA             =>|:|=|,
+OP_ARITH            "+"|"-"|"/"|"*"|"%"
 
     // Bracket Pairs:
-BRACKET             "("|")"|"{"|"}"|"["|"]"
+BRACKET             "("|")"|"{"|"}"
+
+    // Single-character tokens (exept >, < Operators).
+SINGLE_CHAR         ","|":"|"="|{OP_ARITH}|{BRACKET}
 
     // Integer number: Allow no leading zero except for zero itself.
 CONST_INT           0|([1-9]+{DIGIT}*)
@@ -83,61 +65,38 @@ ANY_CHAR            .
 
 %%
 
-{RESERVED}          { handleToken("Reserved word"); }
+if                  { inc_column_number(); return IF; }
+else                { inc_column_number(); return ELSE; }
+for                 { inc_column_number(); return FOR; }
+in                  { inc_column_number(); return IN; }
+to                  { inc_column_number(); return TO; }
+by                  { inc_column_number(); return BY; }
+def                 { inc_column_number(); return DEF; }
+return              { inc_column_number(); return RETURN; }
+extern              { inc_column_number(); return EXTERN; }
+"=>"                { inc_column_number(); return LAMBDA; }
+"=="                { inc_column_number(); return EQ; }
+"!="                { inc_column_number(); return NE; }
+"<="                { inc_column_number(); return LE; }
+"<"                 { inc_column_number(); return LT; }
+">="                { inc_column_number(); return GE; }
+">"                 { inc_column_number(); return GT; }
 
-{TYPE_NAME}         { handleToken("Data/return type"); }
+{SINGLE_CHAR}       { inc_column_number(); return *yytext; }
+{NUMBER}            { inc_column_number(); return NUMBER; } // TODO: set yylval.
+{ID}                { inc_column_number(); return ID; } // TODO: set yylval.
 
-{BUILT_IN}          { handleToken("Built-in function"); }
+{LF}                { line_number += 1; column_number = 0; } // increment line number, reset column number.
+{WHITESPACE}        { inc_column_number(); }
 
-{OP_REL}            { handleToken("Relational operator"); }
-
-{OP_ARITH}          { handleToken("Arithematic operator"); }
-
-{OP_SEPA}           { handleToken("Assignment or separator"); }
-
-{BRACKET}           { handleToken("Bracket"); }
-    
-{NUMBER}            { handleToken("Number"); }
-
-{ID}                { handleToken("Identifier"); }
-
-{LF}                { line_number++; }
-
-{WHITESPACE}        { /* Just ignore them. */ }
-
-{ANY_CHAR}          { yyerror("Unknown Character"); }
+{ANY_CHAR}          { yyerror("Unrecognized character"); exit(1); }
 
 %%
 
-/**
-* This is the main function where the program starts from.
-*/
-int main(int argc, char **argv){
-
-    // Check if a file is provided then input from it.
-    if(argc == 2){
-        yyin = fopen(argv[1], "r");
-        
-        // Show error if file open failed.
-        if(!yyin) {
-            fprintf(stderr, "Cannot open the specified file: %s, input from stdin.\n", argv[1]);
-        }
-    }
-
-    // Start analyzer.
-    yylex();
-
-    // Close input file (or stdin).
-    fclose(yyin);
-
-    // return success.
-    return 0;
+void yyerror(char const *msg) {
+    fprintf(stderr, "Error : %s in line number %d, column number %d\n", msg, line_number, column_number);
 }
 
-void yyerror(char *msg) {
-    fprintf(stderr, "Error Message: \"%s\" in line number %d, Token: \"%s\"\n", msg, line_number, yytext);
-}
-
-void handleToken(char *token) {
-    printf("%25s : %-25s on line %d\n", token, yytext, line_number);
+void inc_column_number() {
+    column_number += yyleng;
 }

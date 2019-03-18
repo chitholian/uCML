@@ -7,10 +7,6 @@ def sumOfSquares(x: int, y: int):int => {
    return square(x) + square(y)
 }
 echo(sumOfSquares(4,5))
-
-(x: int, y:int, z:double):int => { return x * y * z }
-
- echo((4,5,6.0) + (3,5,4.0))
  
  def comparison_test(x: int, y: int): int => { 
      printi( x == y)
@@ -27,8 +23,7 @@ if(x > y)
       { foo(x)}
    else   
       { bar(y) }
-    for( identifier in start to end [by step]) { statements}
- p:int = 1
+p:int = 1
 for(i:int in 1 to n) {   
     echo(p) 
     p = p +1
@@ -59,13 +54,6 @@ def sumOfSquares(x: int, y: int):int => {
    return square(x) + square(y)
 }
 echo(sumOfSquares(4,5)) 
-
-
-
-(x: int, y:int, z:double):int => { return x * y * z }
-
- echo((4,5,6.0) + (3,5,4.0))
-
 
 
 def comparison_test(x: int, y: int): int => { 
