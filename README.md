@@ -23,10 +23,11 @@ extern_decl -> extern  id ( func_decl_args ) :  id
         | extern id ( ) : id | extern id : id
 
 func_decl -> def  id ( func_decl_args ) :  id => block
+        | def id ( ) :  id => block
 
 func_decl_args :  var_decl | func_decl_args , var_decl  
 
-expr ->  - expr | id = expr   |  id ( call_args )  | id  | expr % expr   | expr * expr  
+expr ->  - expr | id = expr   |  id ( call_args )  | id ( ) | id  | expr % expr   | expr * expr  
      | expr / expr   | expr +  expr   |  expr comparison expr   | expr - expr   | ( expr )   | numeric 
 
 numeric -> int | double  
