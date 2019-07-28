@@ -1,19 +1,75 @@
-CC		= gcc
+YACC		= bison
 LEX		= flex
-BISON		= bison
+RM		= rm
+CC		= g++
+CP		= cp
+MKDIR		= mkdir -p
+
+LDFLGS		=
+CFLGS		= -c -Wall
+
+PROGRAM		= uCML
+PREFIX		= /usr
+
+TEST_D		= ../tests
+TESTER		= run-tests.sh
 
 
-PROGRAM		= parser
+objects		= parser.o lexer.o
+
+default-target: help
+
+build: $(PROGRAM)
 
 
-parser: lexer.c parser.c
-	$(CC) -o $(PROGRAM) lexer.c parser.c
-	
-lexer.c: lexer.l
-	$(LEX) -o lexer.c lexer.l
-	
-parser.c: parser.y
-	$(BISON) -d -o parser.c parser.y
-	
+all: $(PROGRAM) test install
+
+
+$(PROGRAM): $(objects)
+	@echo "############ Linking to build executable ############"
+	$(CC) -o $@ $(objects)
+	@echo "############## Build finished: \"$(PROGRAM)\" ###############"
+
+%.o: %.cpp
+	$(CC) -c -o $@ $<
+
+parser.cpp: parser.y
+	$(YACC) -v -d -o $@ $^
+
+lexer.cpp: lexer.l
+	$(LEX) -o $@ $^
+
 clean:
-	-rm -rf parser parser.c parser.h lexer.c
+	@$(RM) $(PROGRAM) parser.hpp parser.cpp parser.output lexer.cpp $(objects)
+
+test:	$(PROGRAM) $(TEST_D) $(TESTER)
+	@echo "################### Start Testing ###################"
+	@./$(TESTER) $(PROGRAM) $(TEST_D)
+	@echo "#################### End Testing ####################"
+
+install: $(PROGRAM)
+	@echo "Installing..."
+	@$(MKDIR) $(PREFIX)/bin
+	$(CP) $< $(PREFIX)/bin/
+	@echo "Installed as \"$(PREFIX)/bin/$(PROGRAM)\""
+	@echo ""
+
+uninstall:
+	@echo "Uninstalling..."
+	$(RM) $(PREFIX)/bin/$(PROGRAM)
+	@echo "Uninstalled \"$(PREFIX)/bin/$(PROGRAM)\""
+	@echo ""
+
+help:
+	@echo "Usage:"
+	@echo "  make help                   : Show this help."
+	@echo "  make build                  : Build the executable compiler."
+	@echo "  make test                   : Run tests against the .ml files."
+	@echo "  make all                    : Build, run tests and install the executable."
+	@echo "  make clean                  : Clean-up the source directory."
+	@echo "  make install [PREFIX=dir]   : Install the executable compiler in \"dir/bin/\" directory. Default PREFIX=$(PREFIX)"
+	@echo "  make uninstall [PREFIX=dir] : Uninstall the executable compiler from \"dir/bin/\" directory. Default PREFIX=$(PREFIX)"
+	@echo ""
+
+
+.PHONY: all build test help install uninstall

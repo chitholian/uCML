@@ -1,102 +1,109 @@
-    /**************************\
-    *      ATIKUR RAHMAN       *
-    *     CSE 2015 - 2016      *
-    * University of Chittagong *
-    \**************************/
+/*
+   Copyright 2019 Atikur Rahman Chitholian
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*/
 
 %option noyywrap
 
 %{
-    #include <stdio.h>
-    #include "parser.h"
-    
-    int line_number = 1, column_number = 0; // Start from first line.
+
+    #include <iostream>
+    #include <string>
+    #include "parser.hpp"
+
+    #define STORE yylval.string = new std::string(yytext, yyleng)
+    #define TOKEN(t) return yylval.token = t
+
+    #define YY_USER_ACTION update_location();
+
+    void yyerror(const char* msg);
+    void update_location();
+
+    int yycolumn = 0;
+
 %}
 
-    /**
-    * A function to show analyzer error.
-    * @arg: The error message.
-    */
-    void yyerror(char const*);
-    
-    /**
-    * A function to increment the column number of a line, i.e. the cursor position.
-    */
-    void inc_column_number(void);
+%option yylineno
 
+ID              [_a-zA-Z]+[_0-9a-zA-Z]*
+INTEGER         0|[1-9][0-9]*
+FLOAT           {INTEGER}?\.0*{INTEGER}
+SCIENTIFIC      ({INTEGER}|{FLOAT})[eE][\-\+]?{INTEGER}
+DOUBLE          {FLOAT}|{SCIENTIFIC}
 
-    // Now make some patterns for our recognizable lexemes.
-
-DIGIT               [0-9]
-LETTER              [a-zA-Z]
-ALPHANUMERIC        {LETTER}|{DIGIT}
-
-    // Identifier: Only alphanumeric and underscore, no leading digit is allowed.
-ID                  (_|{LETTER})+({ALPHANUMERIC}|_)*
-
-    // Arithematic Operators:
-OP_ARITH            "+"|"-"|"/"|"*"|"%"
-
-    // Bracket Pairs:
-BRACKET             "("|")"|"{"|"}"
-
-    // Single-character tokens (exept >, < Operators).
-SINGLE_CHAR         ","|":"|"="|{OP_ARITH}|{BRACKET}
-
-    // Integer number: Allow no leading zero except for zero itself.
-CONST_INT           0|([1-9]+{DIGIT}*)
-
-    // Floating point number.
-CONST_FLOAT         ({CONST_INT})?\.{CONST_INT}
-
-    // Also allow scientific notation.
-CONST_SCI           ({CONST_INT}|{CONST_FLOAT})(e|E)("-"|"+")?{CONST_INT}
-
-NUMBER              {CONST_SCI}|{CONST_FLOAT}|{CONST_INT}
-
-    // Extras:
-LF                  "\n"
-CR                  "\r"
-FF                  "\f"
-TAB                 "\t"
-SPACE               " "
-WHITESPACE          {CR}|{FF}|{TAB}|{SPACE}|{LF}
-ANY_CHAR            .
+%s COMMENT
 
 %%
 
-if                  { inc_column_number(); return IF; }
-else                { inc_column_number(); return ELSE; }
-for                 { inc_column_number(); return FOR; }
-in                  { inc_column_number(); return IN; }
-to                  { inc_column_number(); return TO; }
-by                  { inc_column_number(); return BY; }
-def                 { inc_column_number(); return DEF; }
-return              { inc_column_number(); return RETURN; }
-extern              { inc_column_number(); return EXTERN; }
-"=>"                { inc_column_number(); return LAMBDA; }
-"=="                { inc_column_number(); return EQ; }
-"!="                { inc_column_number(); return NE; }
-"<="                { inc_column_number(); return LE; }
-"<"                 { inc_column_number(); return LT; }
-">="                { inc_column_number(); return GE; }
-">"                 { inc_column_number(); return GT; }
+<INITIAL>"//".*     {/* eat-up */}
+<INITIAL>"/*"       {BEGIN(COMMENT);}
+<COMMENT>"*/"       {BEGIN(INITIAL);}
+<COMMENT>[^*\n]+    {/* eat-up */}
+<COMMENT>"*"        {/* eat-up */}
+[\n]+               {yycolumn = 0;}
+[ \t\r]+            {/* ignore */}
 
-{SINGLE_CHAR}       { inc_column_number(); return *yytext; }
-{NUMBER}            { inc_column_number(); return NUMBER; } // TODO: set yylval.
-{ID}                { inc_column_number(); return ID; } // TODO: set yylval.
+if                  {TOKEN(IF);}
+else                {TOKEN(ELSE);}
+for                 {TOKEN(FOR);}
+in                  {TOKEN(IN);}
+to                  {TOKEN(TO);}
+by                  {TOKEN(BY);}
+def                 {TOKEN(DEF);}
+return              {TOKEN(RETURN);}
+extern              {TOKEN(EXTERN);}
 
-{LF}                { line_number += 1; column_number = 0; } // increment line number, reset column number.
-{WHITESPACE}        { inc_column_number(); }
+"="                 {TOKEN('=');}
 
-{ANY_CHAR}          { yyerror("Unrecognized character"); exit(1); }
+"+"                 {TOKEN('+');}
+"-"                 {TOKEN('-');}
+"*"                 {TOKEN('*');}
+"/"                 {TOKEN('/');}
+"%"                 {TOKEN('%');}
+
+"=="                {TOKEN(EQ);}
+"!="                {TOKEN(NE);}
+">="                {TOKEN(GE);}
+"<="                {TOKEN(LE);}
+">"                 {TOKEN(GT);}
+"<"                 {TOKEN(LT);}
+
+"=>"                {TOKEN(LAMBDA);}
+
+":"                 {TOKEN(':');}
+","                 {TOKEN(',');}
+
+"{"                 {TOKEN('{');}
+"}"                 {TOKEN('}');}
+"("                 {TOKEN('(');}
+")"                 {TOKEN(')');}
+
+{ID}                {STORE; TOKEN(ID);}
+{INTEGER}           {STORE; TOKEN(INTEGER);}
+{DOUBLE}            {STORE; TOKEN(DOUBLE);}
+
+.                   {yyerror("Unrecognized character");}
 
 %%
 
-void yyerror(char const *msg) {
-    fprintf(stderr, "Error : %s in line number %d, column number %d\n", msg, line_number, column_number);
+void yyerror(const char* msg){
+    std::cerr << msg << ": near \"" << yytext << "\" at line: " << yylloc.first_line << ", column: " << yylloc.first_column << std::endl;
 }
 
-void inc_column_number() {
-    column_number += yyleng;
+void update_location(){
+    if(yylloc.last_line < yylineno) yycolumn = 0;
+    yylloc.first_line = yylloc.last_line = yylineno;
+    yylloc.first_column = yycolumn; yylloc.last_column = yycolumn + (int) yyleng - 1;
+    yycolumn += (int) yyleng;
 }
