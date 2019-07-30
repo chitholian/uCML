@@ -1,21 +1,23 @@
-YACC		= bison
-LEX		= flex
-RM		= rm
-CC		= g++
-CP		= cp
-MKDIR		= mkdir -p
+YACC    	= bison
+LEX     	= flex
+RM      	= rm
+CC			= g++
+CP			= cp
+MKDIR   	= mkdir -p
+LLVMCONFIG	= llvm-config
 
-LDFLGS		=
-CFLGS		= -c -Wall
+CPPFLAGS	= -g -Wall -std=c++11 `$(LLVMCONFIG) --cppflags`
+LDFLAGS		= -g -Wall -std=c++11 `$(LLVMCONFIG) --ldflags` -lpthread -ldl -lz -lncurses -rdynamic
+LIBS		= `$(LLVMCONFIG) --libs`
 
-PROGRAM		= uCML
-PREFIX		= /usr
+PROGRAM 	= uCML
+PREFIX  	= /usr
 
-TEST_D		= ../tests
-TESTER		= run-tests.sh
+TEST_D  	= ../tests
+TESTER  	= run-tests.sh
 
 
-objects		= parser.o lexer.o
+objects = parser.o lexer.o nodes.o context.o tools.o main.o
 
 default-target: help
 
@@ -27,11 +29,11 @@ all: $(PROGRAM) test install
 
 $(PROGRAM): $(objects)
 	@echo "############ Linking to build executable ############"
-	$(CC) -o $@ $(objects)
+	$(CC) $(LDFLAGS) $(LIBS) -o $@ $(objects)
 	@echo "############## Build finished: \"$(PROGRAM)\" ###############"
 
 %.o: %.cpp
-	$(CC) -c -o $@ $<
+	$(CC) $(CPPFLAGS) -c -o $@ $<
 
 parser.cpp: parser.y
 	$(YACC) -v -d -o $@ $^
@@ -63,12 +65,12 @@ uninstall:
 help:
 	@echo "Usage:"
 	@echo "  make help                   : Show this help."
-	@echo "  make build                  : Build the executable compiler."
+	@echo "  make build                  : Build the executable compiler-frontend."
 	@echo "  make test                   : Run tests against the .ml files."
 	@echo "  make all                    : Build, run tests and install the executable."
 	@echo "  make clean                  : Clean-up the source directory."
-	@echo "  make install [PREFIX=dir]   : Install the executable compiler in \"dir/bin/\" directory. Default PREFIX=$(PREFIX)"
-	@echo "  make uninstall [PREFIX=dir] : Uninstall the executable compiler from \"dir/bin/\" directory. Default PREFIX=$(PREFIX)"
+	@echo "  make install [PREFIX=dir]   : Install the executable in \"dir/bin/\" directory. Default PREFIX=$(PREFIX)"
+	@echo "  make uninstall [PREFIX=dir] : Uninstall the executable from \"dir/bin/\" directory. Default PREFIX=$(PREFIX)"
 	@echo ""
 
 

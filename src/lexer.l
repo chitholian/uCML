@@ -17,13 +17,12 @@
 %option noyywrap
 
 %{
-
     #include <iostream>
     #include <string>
     #include "parser.hpp"
 
     #define STORE yylval.string = new std::string(yytext, yyleng)
-    #define TOKEN(t) return yylval.token = t
+    #define TOKEN(t) return (yylval.token = t)
 
     #define YY_USER_ACTION update_location();
 
@@ -31,7 +30,6 @@
     void update_location();
 
     int yycolumn = 0;
-
 %}
 
 %option yylineno
@@ -89,16 +87,16 @@ extern              {TOKEN(EXTERN);}
 "("                 {TOKEN('(');}
 ")"                 {TOKEN(')');}
 
-{ID}                {STORE; TOKEN(ID);}
-{INTEGER}           {STORE; TOKEN(INTEGER);}
-{DOUBLE}            {STORE; TOKEN(DOUBLE);}
+{ID}                {STORE; return ID;}
+{INTEGER}           {STORE; return INTEGER;}
+{DOUBLE}            {STORE; return DOUBLE;}
 
 .                   {yyerror("Unrecognized character");}
 
 %%
 
 void yyerror(const char* msg){
-    std::cerr << msg << ": near \"" << yytext << "\" at line: " << yylloc.first_line << ", column: " << yylloc.first_column << std::endl;
+    std::cerr << msg << ", near \"" << yytext << "\" at line: " << yylloc.first_line << ", column: " << yylloc.first_column << std::endl;
 }
 
 void update_location(){

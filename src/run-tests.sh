@@ -26,6 +26,8 @@ fi
 
 for f in "$TEST_D/"*.ml;do
     echo "Testing file \"$f\":"
-    "./$PROGRAM" < "$f"
-    echo "";
+    "./$PROGRAM" "$f"
+    RET=$?
+    echo "Return code: $RET"
+    echo ""
 done
