@@ -106,18 +106,18 @@ for(i:int in 1 to n by 2) {
 ```
 
 ## Compilation and Running
-To compile this program you need `flex`, `bison`, `gcc`, `make` be installed.
+To compile this program you need `flex`, `bison`, `gcc`, `make`, `llvm` be installed.
 
 For `Ubuntu` and its derivatives:
 
 ```bash
-sudo apt install gcc make flex bison
+sudo apt install gcc make flex bison llvm-dev
 ```
 
 For `Fedora`, `Red Hat`, `CentOS` :
 
 ```bash
-sudo dnf install flex make gcc bison || sudo yum install flex make gcc bison
+sudo dnf install flex make gcc bison llvm-devel || sudo yum install flex make gcc bison llvm-devel
 ```
 
 To build, goto `src` directory and run:
