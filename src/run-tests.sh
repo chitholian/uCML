@@ -24,12 +24,13 @@ if [ "$TEST_D" == "" ];then
     exit 2;
 fi
 
-#for f in "$TEST_D/"*.ml;do
-for f in aaa.ml;do
+for f in "$TEST_D/"*.ml;do
+#for f in aaa.ml;do
     echo "Testing file \"$f\":"
-    "./$PROGRAM" "$f" out.ir
+#    "./$PROGRAM" "$f" "$f.ir"
+    "./$PROGRAM" "$f"
     RET=$?
     echo "Return code: $RET"
     echo ""
-    break
+#    break
 done
