@@ -1,5 +1,4 @@
 #include <iostream>
-#include <fstream>
 #include "tools.hpp"
 
 ucml::Block *mainBlock;
@@ -49,7 +48,7 @@ int main(int argc, char *argv[]) {
             std::cout << "====> IR dumped to file \"" << argv[2] << "\"\n";
         }
     } else {
-        tools.printIR(llvm::outs());
+//        tools.printIR(llvm::outs());
     }
     tools.runCode(function);
     return 0;

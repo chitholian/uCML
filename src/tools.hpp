@@ -6,6 +6,10 @@
 #include "context.hpp"
 #include "nodes.hpp"
 
+#define P(s) std::cout << s << "\n"
+#define E(s) std::cerr << s << "\n"
+#define FATAL(loc, msg) std::cerr << "E:L" << loc.first_line << ":C" << loc.first_column << ":" << msg << "\n"; exit(1)
+
 namespace ucml {
     class Tools {
         Context &context;
@@ -23,7 +27,11 @@ namespace ucml {
 
         llvm::GenericValue runCode(llvm::Function *function);
 
-        static void showPrompt();
+        static llvm::Type *typeOf(const Identifier &type, llvm::LLVMContext &llvmContext);
+
+        static llvm::Value *getValueOfIdentifier(Context &context, const std::string &name);
+
+        static bool isValidType(const std::string &typeName, bool isFunction=false);
     };
 }
 

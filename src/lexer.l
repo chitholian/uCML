@@ -29,13 +29,13 @@
     void yyerror(const char* msg);
     void update_location();
 
-    int yycolumn = 0;
+    int yycolumn = 1;
 %}
 
 %option yylineno
 
 ID              [_a-zA-Z]+[_0-9a-zA-Z]*
-INTEGER         0|[1-9][0-9]*
+INTEGER         [0-9]+
 FLOAT           {INTEGER}?\.0*{INTEGER}
 SCIENTIFIC      ({INTEGER}|{FLOAT})[eE][\-\+]?{INTEGER}
 DOUBLE          {FLOAT}|{SCIENTIFIC}
@@ -49,7 +49,7 @@ DOUBLE          {FLOAT}|{SCIENTIFIC}
 <COMMENT>"*/"       {BEGIN(INITIAL);}
 <COMMENT>[^*\n]+    {/* eat-up */}
 <COMMENT>"*"        {/* eat-up */}
-[\n]+               {yycolumn = 0;}
+[\n]+               {yycolumn = 1;}
 [ \t\r]+            {/* ignore */}
 
 if                  {TOKEN(IF);}
@@ -96,11 +96,11 @@ extern              {TOKEN(EXTERN);}
 %%
 
 void yyerror(const char* msg){
-    std::cerr << msg << ", near \"" << yytext << "\" at line: " << yylloc.first_line << ", column: " << yylloc.first_column << std::endl;
+    std::cerr << "E:L" << yylloc.first_line << ":C" << yylloc.first_column << ":" << msg << ", near \"" << yytext << "\"\n";
 }
 
 void update_location(){
-    if(yylloc.last_line < yylineno) yycolumn = 0;
+    if(yylloc.last_line < yylineno) yycolumn = 1;
     yylloc.first_line = yylloc.last_line = yylineno;
     yylloc.first_column = yycolumn; yylloc.last_column = yycolumn + (int) yyleng - 1;
     yycolumn += (int) yyleng;

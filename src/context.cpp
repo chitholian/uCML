@@ -34,13 +34,18 @@ namespace ucml {
     }
 
     void Context::pushBlock(llvm::BasicBlock *block) {
-        scopes.push(new Scope());
-        scopes.top()->block = block;
-        scopes.top()->returnVal = nullptr;
-        scopes.top()->parent = isEmpty() ? nullptr : scopes.top();
+        auto *scope = new Scope();
+        scope->parent = scopes.empty() ? nullptr : scopes.top();
+        scope->block = block;
+        scope->returnVal = nullptr;
+        scopes.push(scope);
     }
 
     void Context::setReturnValue(llvm::Value *value) {
         scopes.top()->returnVal = value;
+    }
+
+    int Context::size() {
+        return scopes.size();
     }
 }

@@ -3,19 +3,30 @@
 
 #include <vector>
 #include <llvm/IR/Value.h>
+#include <llvm/IR/Module.h>
 #include <string>
 #include "context.hpp"
+
+
+struct YYLTYPE
+{
+    int         first_line{0};
+    int         first_column{0};
+    int         last_line{0};
+    int         last_column{0};
+};
+
 
 namespace ucml {
 
     class Node {
     public:
-        virtual llvm::Value *generateCode(Context& context);
+        virtual llvm::Value *generateCode(Context &context);
 
         virtual ~Node() = default;
     };
 
-    class Statement : public Node {
+    class Statement : public Node {;
     };
 
     class Expression : public Statement {
@@ -23,22 +34,24 @@ namespace ucml {
 
     class Identifier : public Expression {
     public:
+        YYLTYPE location;
         const std::string &name;
 
-        explicit Identifier(const std::string &name);
+        explicit Identifier(YYLTYPE location, const std::string &name);
 
-        llvm::Value *generateCode(Context& context) override;
+        llvm::Value *generateCode(Context &context) override;
     };
 
     class VariableDeclaration : public Statement {
     public:
+        YYLTYPE location;
         const Identifier &type;
-        Identifier &name;
+        Identifier &identifier;
         Expression *expression;
 
-        VariableDeclaration(const Identifier &type, Identifier &name, Expression *expr = nullptr);
+        VariableDeclaration(YYLTYPE location, const Identifier &type, Identifier &name, Expression *expr = nullptr);
 
-        llvm::Value *generateCode(Context& context) override;
+        llvm::Value *generateCode(Context &context) override;
     };
 
     typedef std::vector<Statement *> StatementList;
@@ -49,7 +62,7 @@ namespace ucml {
     public:
         StatementList statements;
 
-        llvm::Value *generateCode(Context& context) override;
+        llvm::Value *generateCode(Context &context) override;
     };
 
 
@@ -59,7 +72,7 @@ namespace ucml {
 
         explicit ExprStatement(Expression &expr);
 
-        llvm::Value *generateCode(Context& context) override;
+        llvm::Value *generateCode(Context &context) override;
     };
 
     class Integer : public Expression {
@@ -68,7 +81,7 @@ namespace ucml {
 
         explicit Integer(long long value);
 
-        llvm::Value *generateCode(Context& context) override;
+        llvm::Value *generateCode(Context &context) override;
     };
 
     class Double : public Expression {
@@ -77,59 +90,65 @@ namespace ucml {
 
         explicit Double(double value);
 
-        llvm::Value *generateCode(Context& context) override;
+        llvm::Value *generateCode(Context &context) override;
     };
 
     class BinaryOperation : public Expression {
     public:
+        YYLTYPE location;
         int operation;
         Expression &left, &right;
 
-        BinaryOperation(int op, Expression &lhs, Expression &rhs);
+        BinaryOperation(YYLTYPE location, int op, Expression &lhs, Expression &rhs);
 
-        llvm::Value *generateCode(Context& context) override;
+        llvm::Value *generateCode(Context &context) override;
     };
 
     class UnaryOperation : public Expression {
     public:
+        YYLTYPE location;
         int operation;
         Expression &expression;
 
-        UnaryOperation(int op, Expression &expr);
+        UnaryOperation(YYLTYPE location, int op, Expression &expr);
 
-        llvm::Value *generateCode(Context& context) override;
+        llvm::Value *generateCode(Context &context) override;
     };
 
     class Assignment : public Expression {
     public:
+        YYLTYPE location;
         Identifier &identifier;
         Expression &expression;
 
-        Assignment(Identifier &id, Expression &expr);
+        Assignment(YYLTYPE location, Identifier &id, Expression &expr);
 
-        llvm::Value *generateCode(Context& context) override;
+        llvm::Value *generateCode(Context &context) override;
     };
 
     class FunctionDeclaration : public Statement {
     public:
-        const Identifier &type, &name;
-        Block &body;
+        YYLTYPE location;
+        const Identifier &type, &identifier;
+        Block *body;
         VariableList *parameters;
+        bool isExternal;
 
-        FunctionDeclaration(const Identifier &type, const Identifier &name, Block &body,
-                            VariableList *params = nullptr);
+        FunctionDeclaration(YYLTYPE location, const Identifier &type, const Identifier &name, Block *body = nullptr,
+                            VariableList *params = nullptr, bool isExt = false);
 
-        llvm::Value *generateCode(Context& context) override;
+        llvm::Value *generateCode(Context &context) override;
     };
 
     class FunctionCall : public Expression {
     public:
-        const Identifier &name;
+        YYLTYPE location;
+        const Identifier &identifier;
         ExpressionList *args;
 
-        explicit FunctionCall(const Identifier &name, ExpressionList *args = nullptr);
+        explicit FunctionCall(YYLTYPE location, const Identifier &name, ExpressionList *args = nullptr);
 
-        llvm::Value *generateCode(Context& context) override;
+        llvm::Value *generateCode(Context &context) override;
     };
 
     class ForLoop : public Statement {
@@ -143,46 +162,28 @@ namespace ucml {
         ForLoop(Identifier &varName, const Identifier &type, Expression &from, Expression &to, Block &body,
                 Expression *by = nullptr);
 
-        llvm::Value *generateCode(Context& context) override;
+        llvm::Value *generateCode(Context &context) override;
     };
 
     class IfCondition : public Statement {
     public:
+        YYLTYPE location;
         Expression &condition;
         Block &thenBlock, *elseBlock;
 
-        IfCondition(Expression &cond, Block &thenBlock, Block *elseBlock = nullptr);
+        IfCondition(YYLTYPE location, Expression &cond, Block &thenBlock, Block *elseBlock = nullptr);
 
-        llvm::Value *generateCode(Context& context) override;
+        llvm::Value *generateCode(Context &context) override;
     };
 
     class ReturnStatement : public Statement {
     public:
-        Expression &expression;
+        YYLTYPE location;
+        Expression *expression;
 
-        explicit ReturnStatement(Expression &expr);
+        explicit ReturnStatement(YYLTYPE location, Expression *expr = nullptr);
 
-        llvm::Value *generateCode(Context& context) override;
-    };
-
-    class ExternalVariable : public Statement {
-    public:
-        const Identifier &type;
-        Identifier &name;
-
-        ExternalVariable(const Identifier &type, Identifier &name);
-
-        llvm::Value *generateCode(Context& context) override;
-    };
-
-    class ExternalFunction : public Statement {
-    public:
-        const Identifier &type, &name;
-        VariableList *parameters;
-
-        ExternalFunction(const Identifier &type, const Identifier &name, VariableList *params = nullptr);
-
-        llvm::Value *generateCode(Context& context) override;
+        llvm::Value *generateCode(Context &context) override;
     };
 }
 #endif

@@ -40,6 +40,8 @@ namespace ucml {
         void popBlock();
 
         bool isEmpty();
+
+        int size();
     };
 }
 

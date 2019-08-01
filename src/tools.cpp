@@ -1,6 +1,5 @@
 #include <vector>
 #include <iostream>
-#include "tools.hpp"
 #include <llvm/Support/TargetSelect.h>
 #include <llvm/IR/Type.h>
 #include <llvm/IR/DerivedTypes.h>
@@ -11,6 +10,7 @@
 #include <llvm/IR/IRPrintingPasses.h>
 #include <llvm/ExecutionEngine/GenericValue.h>
 #include <llvm/ExecutionEngine/ExecutionEngine.h>
+#include "tools.hpp"
 
 namespace ucml {
 
@@ -24,7 +24,7 @@ namespace ucml {
     }
 
     void Tools::createBuiltInFunctions() {
-        std::cout << "====> Creating built-in function \"echo(int)\" ...\n";
+        std::cout << "====> Creating built-in functions ...\n";
         std::vector<llvm::Type *> arg_types;
         arg_types.push_back(llvm::Type::getInt8PtrTy(context.llvmContext));
         llvm::FunctionType *functionType = llvm::FunctionType::get(llvm::Type::getInt32Ty(context.llvmContext),
@@ -33,8 +33,9 @@ namespace ucml {
                                                           llvm::Twine("printf"), context.module);
         function->setCallingConv(llvm::CallingConv::C);
 
+        /* For echo(int) */
         arg_types = std::vector<llvm::Type *>();
-        arg_types.push_back(llvm::Type::getInt32Ty(context.llvmContext));
+        arg_types.push_back(llvm::Type::getDoubleTy(context.llvmContext));
         functionType = llvm::FunctionType::get(llvm::Type::getVoidTy(context.llvmContext), arg_types, false);
         llvm::Function *echoFunction = llvm::Function::Create(functionType, llvm::Function::InternalLinkage,
                                                               llvm::Twine("echo"),
@@ -42,7 +43,7 @@ namespace ucml {
 
         llvm::BasicBlock *block = llvm::BasicBlock::Create(context.llvmContext, "entry", echoFunction);
         context.pushBlock(block);
-        const char *formatSpecifier = "%d\n";
+        const char *formatSpecifier = "%lf\n";
         llvm::Constant *format = llvm::ConstantDataArray::getString(context.llvmContext, formatSpecifier);
         auto *var = new llvm::GlobalVariable(*context.module, llvm::ArrayType::get(
                 llvm::IntegerType::get(context.llvmContext, 8), strlen(formatSpecifier) + 1), true,
@@ -68,7 +69,7 @@ namespace ucml {
         llvm::ReturnInst::Create(context.llvmContext, block);
         context.popBlock();
 
-        std::cout << "====> Built-in function is created.\n";
+        std::cout << "====> Built-in functions are created.\n";
     }
 
     llvm::Function *Tools::generateCode() {
@@ -83,7 +84,7 @@ namespace ucml {
 
         context.pushBlock(block);
         codeBlock->generateCode(context);
-        llvm::ReturnInst::Create(context.llvmContext, block);
+        llvm::ReturnInst::Create(context.llvmContext, context.getCurrentBlock());
         context.popBlock();
         return mainFunction;
     }
@@ -101,5 +102,42 @@ namespace ucml {
         llvm::GenericValue genericValue = executionEngine->runFunction(mainFunction, args);
         std::cout << "====> Execution completed.\n";
         return genericValue;
+    }
+
+    llvm::Type *Tools::typeOf(const ucml::Identifier &type, llvm::LLVMContext &llvmContext) {
+        if (type.name == "int") {
+            return llvm::Type::getInt64Ty(llvmContext);
+        } else if (type.name == "double") {
+            return llvm::Type::getDoubleTy(llvmContext);
+        } else if (type.name == "void") {
+            return llvm::Type::getVoidTy(llvmContext);
+        }
+        return nullptr;
+    }
+
+    llvm::Value *Tools::getValueOfIdentifier(ucml::Context &context, const std::string &name) {
+        if (context.isEmpty()) {
+            llvm::GlobalValue *globalValue = context.module->getNamedValue(name);
+            if (globalValue) {
+                return globalValue;
+            }
+            return nullptr;
+        } else if (context.getSymbols().find(name) != context.getSymbols().end()) {
+            return context.getSymbols()[name];
+        } else {
+            Scope *parentScope = context.getCurrentScope();
+            while (parentScope->parent) {
+                if (parentScope->parent->symbols.find(name) != parentScope->parent->symbols.end()) {
+                    return parentScope->parent->symbols[name];
+                }
+                parentScope = parentScope->parent;
+            }
+            return nullptr;
+        }
+    }
+
+    bool Tools::isValidType(const std::string &typeName, bool isFunction) {
+        if (typeName == "int" || typeName == "double") return true;
+        return isFunction && typeName == "void";
     }
 }
