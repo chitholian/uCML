@@ -39,39 +39,10 @@ namespace ucml {
     }
 
     void Tools::createBuiltInFunctions() {
-        std::cout << "====> Creating built-in functions ...\n";
-        VariableList arguments;
-        Identifier type({}, "int");
-        Identifier name({}, "value");
-        VariableDeclaration declaration({}, type, name);
-        arguments.push_back(&declaration);
+        std::cout << "====> Creating built-in function \"echo(number)\" ...\n";
 
-        Identifier funcType({}, "void");
-        Identifier funcName({}, "printi");
-//        FunctionCall call({}, funcName);
-
-        FunctionDeclaration printIntegerDeclaration({}, funcType, funcName, nullptr, &arguments, true);
-        printIntegerDeclaration.generateCode(context);
-
-        Block bodyOfEcho;
-        bodyOfEcho.statements.push_back(&printIntegerDeclaration);
-
-
-        Identifier type2({}, "double");
-        VariableDeclaration declaration2({}, type2, name);
-        arguments.clear();
-        arguments.push_back(&declaration2);
-
-        Identifier funcType2({}, "void");
-        Identifier funcName2({}, "printd");
-//        FunctionCall call2({}, funcName2);
-
-        FunctionDeclaration printDoubleDeclaration({}, funcType2, funcName2, nullptr, &arguments, true);
-        printDoubleDeclaration.generateCode(context);
-
-
-
-        /*std::vector<llvm::Type *> arg_types;
+        /* printf() function from "C" */
+        std::vector<llvm::Type *> arg_types;
         arg_types.push_back(llvm::Type::getInt8PtrTy(context.llvmContext));
         llvm::FunctionType *functionType = llvm::FunctionType::get(llvm::Type::getInt32Ty(context.llvmContext),
                                                                    arg_types, true);
@@ -79,48 +50,43 @@ namespace ucml {
                                                           llvm::Twine("printf"), context.module);
         function->setCallingConv(llvm::CallingConv::C);
 
-        // For echo(int)
+        /* Our built-in echo(int) function */
         arg_types = std::vector<llvm::Type *>();
         arg_types.push_back(llvm::Type::getInt64Ty(context.llvmContext));
         functionType = llvm::FunctionType::get(llvm::Type::getVoidTy(context.llvmContext), arg_types, false);
-        llvm::Function *echoFunction = llvm::Function::Create(functionType, llvm::Function::InternalLinkage,
-                                                              llvm::Twine("echo"),
-                                                              context.module);
+        llvm::Function *echoInteger = llvm::Function::Create(functionType, llvm::Function::InternalLinkage,
+                                                             llvm::Twine("echoint"), context.module);
 
-        llvm::BasicBlock *block = llvm::BasicBlock::Create(context.llvmContext, "entry", echoFunction);
-        context.createNewScope(block);
-        const char *formatSpecifier = "%lld\n";
-        llvm::Constant *format = llvm::ConstantDataArray::getString(context.llvmContext, formatSpecifier);
-        auto *var = new llvm::GlobalVariable(*context.module, llvm::ArrayType::get(
-                llvm::IntegerType::get(context.llvmContext, 8), strlen(formatSpecifier) + 1), true,
-                                             llvm::GlobalValue::PrivateLinkage, format, ".str");
-
-        llvm::Constant *zero = llvm::Constant::getNullValue(llvm::IntegerType::getInt32Ty(context.llvmContext));
-
-        std::vector<llvm::Constant *> indices;
-        indices.push_back(zero);
-        indices.push_back(zero);
-        llvm::Constant *var_ref = llvm::ConstantExpr::getGetElementPtr(
-                llvm::ArrayType::get(llvm::IntegerType::get(context.llvmContext, 8), strlen(formatSpecifier) + 1), var,
-                indices);
-
+        llvm::BasicBlock *block = llvm::BasicBlock::Create(context.llvmContext, "entry", echoInteger);
+        llvm::IRBuilder<> builder(block);
+        llvm::Constant *format = builder.CreateGlobalStringPtr("%lld\n", ".ext_print_format_lld");
         std::vector<llvm::Value *> args;
-        args.push_back(var_ref);
+        args.push_back(format);
+        args.push_back(&*echoInteger->arg_begin());
+        builder.CreateCall(function, llvm::makeArrayRef(args), "");
+        builder.CreateRetVoid();
 
-        llvm::Value *toPrint = &*echoFunction->arg_begin();
-        toPrint->setName("toPrint");
-        args.push_back(toPrint);
+        /* Our built-in echo(double) function */
+        arg_types = std::vector<llvm::Type *>();
+        arg_types.push_back(llvm::Type::getDoubleTy(context.llvmContext));
+        functionType = llvm::FunctionType::get(llvm::Type::getVoidTy(context.llvmContext), arg_types, false);
+        llvm::Function *echoDouble = llvm::Function::Create(functionType, llvm::Function::InternalLinkage,
+                                                            llvm::Twine("echodouble"), context.module);
 
-        llvm::CallInst::Create(function, makeArrayRef(args), "", block);
-        llvm::ReturnInst::Create(context.llvmContext, block);
-        context.closeCurrentScope();*/
-
+        llvm::BasicBlock *block2 = llvm::BasicBlock::Create(context.llvmContext, "entry", echoDouble);
+        builder.SetInsertPoint(block2);
+        llvm::Constant *format2 = builder.CreateGlobalStringPtr("%lf\n", ".ext_print_format_lf");
+        args.clear();
+        args.push_back(format2);
+        args.push_back(&*echoDouble->arg_begin());
+        builder.CreateCall(function, llvm::makeArrayRef(args), "");
+        builder.CreateRetVoid();
         std::cout << "====> Built-in functions are created.\n";
     }
 
     llvm::Function *Tools::generateCode() {
         std::vector<llvm::Type *> argTypes;
-        llvm::FunctionType *functionType = llvm::FunctionType::get(llvm::Type::getVoidTy(context.llvmContext),
+        llvm::FunctionType *functionType = llvm::FunctionType::get(llvm::Type::getInt64Ty(context.llvmContext),
                                                                    makeArrayRef(argTypes), false);
         llvm::Function *mainFunction = llvm::Function::Create(functionType, llvm::GlobalValue::InternalLinkage, "main",
                                                               context.module);
@@ -128,7 +94,10 @@ namespace ucml {
 
         context.createNewScope(block);
         codeBlock->generateCode(context);
-        llvm::ReturnInst::Create(context.llvmContext, context.getCurrentBlock());
+        context.getCurrentBlock()->getTerminator() ||
+        llvm::ReturnInst::Create(context.llvmContext,
+                                 llvm::ConstantInt::get(llvm::IntegerType::getInt64Ty(context.llvmContext), 0, true),
+                                 context.getCurrentBlock());
         context.closeCurrentScope();
         return mainFunction;
     }
@@ -160,25 +129,25 @@ namespace ucml {
     }
 
     std::pair<llvm::Type *, llvm::Value *> *
-    Tools::getValueOfIdentifier(ucml::Context &context, const std::string &name) {
-        if (context.isEmpty()) {
-            llvm::GlobalValue *globalValue = context.module->getNamedValue(name);
-            if (globalValue) {
-                return new std::pair<llvm::Type *, llvm::Value *>(globalValue->getType(), globalValue);
-            }
-            return nullptr;
-        } else if (context.getSymbols().find(name) != context.getSymbols().end()) {
-            return &context.getSymbols()[name];
+    Tools::getValueOfIdentifier(ucml::Context &context, const Identifier &identifier) {
+        if (context.getSymbols().find(identifier.name) != context.getSymbols().end()) {
+            return &context.getSymbols()[identifier.name];
         } else {
             Scope *parentScope = context.getCurrentScope();
             while (parentScope->parent) {
-                if (parentScope->parent->symbols.find(name) != parentScope->parent->symbols.end()) {
-                    return &parentScope->parent->symbols[name];
+                if (parentScope->parent->symbols.find(identifier.name) != parentScope->parent->symbols.end()) {
+                    return &parentScope->parent->symbols[identifier.name];
                 }
                 parentScope = parentScope->parent;
             }
-            return nullptr;
         }
+        llvm::GlobalValue *globalValue = context.module->getNamedValue(identifier.name);
+        if (globalValue) {
+            llvm::IRBuilder<> builder(context.getCurrentBlock());
+            llvm::Type *type = globalValue->getValueType();
+            return new std::pair<llvm::Type *, llvm::Value *>(type, globalValue);
+        }
+        return nullptr;
     }
 
     bool Tools::isValidType(const std::string &typeName, bool isFunction) {

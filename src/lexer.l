@@ -20,6 +20,7 @@
     #include <iostream>
     #include <string>
     #include "parser.hpp"
+    #include "tools.hpp"
 
     #define STORE yylval.string = new std::string(yytext, yyleng)
     #define TOKEN(t) return (yylval.token = t)
@@ -91,7 +92,7 @@ extern              {TOKEN(EXTERN);}
 {INTEGER}           {STORE; return INTEGER;}
 {DOUBLE}            {STORE; return DOUBLE;}
 
-.                   {yyerror("Recovering from error by ignoring unrecognized character");}
+.                   {FATAL(yylloc, "Unrecognized symbol \"" << yytext << "\"");}
 
 %%
 

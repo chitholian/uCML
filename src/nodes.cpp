@@ -73,7 +73,7 @@ namespace ucml {
     }
 
     llvm::Value *Identifier::generateCode(Context &context) {
-        auto *idPointer = Tools::getValueOfIdentifier(context, name);
+        auto *idPointer = Tools::getValueOfIdentifier(context, *this);
         if (idPointer && idPointer->second) {
             return llvm::IRBuilder<>(context.getCurrentBlock()).CreateLoad(idPointer->second);
         }
@@ -86,10 +86,19 @@ namespace ucml {
             FATAL(location, "Invalid type \"" << type.name << "\"");
             return nullptr;
         }
-        if (context.isEmpty()) {
-            context.module->getOrInsertGlobal(identifier.name, Tools::typeOf(identifier, context.llvmContext));
-            llvm::GlobalVariable *globalVariable = context.module->getNamedGlobal(identifier.name);
-            globalVariable->setLinkage(llvm::GlobalValue::InternalLinkage);
+
+        if (context.size() <= 1) { // means global scope
+            if (context.module->getNamedGlobal(identifier.name)) {
+                FATAL(location, "Global variable \"" << identifier.name << "\" is already declared.");
+                return nullptr;
+            }
+            llvm::Type *valueType = Tools::typeOf(type, context.llvmContext);
+            llvm::IRBuilder<> builder(context.getCurrentBlock());
+            llvm::Constant *defaultValue =
+                    type.name == "int" ? builder.getInt64(0) : llvm::ConstantFP::get(builder.getDoubleTy(), 0.0);
+            new llvm::GlobalVariable(*context.module, valueType, false, llvm::GlobalValue::InternalLinkage,
+                                     defaultValue,
+                                     identifier.name);
         } else {
             if (context.getSymbols().find(identifier.name) == context.getSymbols().end()) {
                 auto *allocationInst = new llvm::AllocaInst(Tools::typeOf(type, context.llvmContext),
@@ -161,29 +170,23 @@ namespace ucml {
             case '%':
                 return isFP ? irBuilder.CreateFRem(leftValue, rightValue) : irBuilder.CreateSRem(leftValue, rightValue);
             case EQ:
-                return isFP ? irBuilder.CreateFCmpOEQ(leftValue, rightValue, "eq") : irBuilder.CreateICmpEQ(leftValue,
-                                                                                                            rightValue,
-                                                                                                            "eq");
+                return isFP ? irBuilder.CreateFCmpOEQ(leftValue, rightValue, "eq") :
+                       irBuilder.CreateICmpEQ(leftValue, rightValue, "eq");
             case NE:
-                return isFP ? irBuilder.CreateFCmpONE(leftValue, rightValue, "ne") : irBuilder.CreateICmpNE(leftValue,
-                                                                                                            rightValue,
-                                                                                                            "ne");
+                return isFP ? irBuilder.CreateFCmpONE(leftValue, rightValue, "ne") :
+                       irBuilder.CreateICmpNE(leftValue, rightValue, "ne");
             case LT:
-                return isFP ? irBuilder.CreateFCmpOLT(leftValue, rightValue, "lt") : irBuilder.CreateICmpSLT(leftValue,
-                                                                                                             rightValue,
-                                                                                                             "lt");
+                return isFP ? irBuilder.CreateFCmpOLT(leftValue, rightValue, "lt") :
+                       irBuilder.CreateICmpSLT(leftValue, rightValue, "lt");
             case GT:
-                return isFP ? irBuilder.CreateFCmpOGT(leftValue, rightValue, "gt") : irBuilder.CreateICmpSGT(leftValue,
-                                                                                                             rightValue,
-                                                                                                             "gt");
+                return isFP ? irBuilder.CreateFCmpOGT(leftValue, rightValue, "gt") :
+                       irBuilder.CreateICmpSGT(leftValue, rightValue, "gt");
             case LE:
-                return isFP ? irBuilder.CreateFCmpOLE(leftValue, rightValue, "le") : irBuilder.CreateICmpSLE(leftValue,
-                                                                                                             rightValue,
-                                                                                                             "le");
+                return isFP ? irBuilder.CreateFCmpOLE(leftValue, rightValue, "le") :
+                       irBuilder.CreateICmpSLE(leftValue, rightValue, "le");
             case GE:
-                return isFP ? irBuilder.CreateFCmpOGE(leftValue, rightValue, "ge") : irBuilder.CreateICmpSGE(leftValue,
-                                                                                                             rightValue,
-                                                                                                             "ge");
+                return isFP ? irBuilder.CreateFCmpOGE(leftValue, rightValue, "ge") :
+                       irBuilder.CreateICmpSGE(leftValue, rightValue, "ge");
             default:
                 return nullptr;
         }
@@ -206,7 +209,7 @@ namespace ucml {
     }
 
     llvm::Value *Assignment::generateCode(Context &context) {
-        auto destination = Tools::getValueOfIdentifier(context, identifier.name);
+        auto destination = Tools::getValueOfIdentifier(context, identifier);
         if (!destination || !destination->second) {
             FATAL(location, "Undeclared variable \"" << identifier.name << "\"");
             return nullptr;
@@ -244,12 +247,9 @@ namespace ucml {
             FATAL(location, "Invalid return type \"" << type.name << "\".");
             return nullptr;
         }
-        if (context.module->getFunction(identifier.name)) {
-            if (isExternal)
-                W(location, "Function with name \"" << identifier.name << "\" is already declared.");
-            else {
-                FATAL(location, "Function with name \"" << identifier.name << "\" is already defined.");
-            }
+        // Protect our dummy built-in function: echo(number) too!
+        if (identifier.name == "echo" || context.module->getFunction(identifier.name)) {
+            FATAL(location, "Function with name \"" << identifier.name << "\" is already defined.");
             return nullptr;
         }
         std::vector<llvm::Type *> argTypes;
@@ -282,7 +282,7 @@ namespace ucml {
             for (auto &arg : *parameters) {
                 argValue = &*iterator++;
                 arg->generateCode(context);
-                builder.CreateStore(argValue, Tools::getValueOfIdentifier(context, arg->identifier.name)->second,
+                builder.CreateStore(argValue, Tools::getValueOfIdentifier(context, arg->identifier)->second,
                                     false);
             }
         }
@@ -299,7 +299,36 @@ namespace ucml {
 
     llvm::Value *FunctionCall::generateCode(Context &context) {
         llvm::Function *function = context.module->getFunction(identifier.name);
+        bool notFound = false;
         if (!function) {
+            // Check if our dummy "echo()" is called!
+            if (identifier.name == "echo") {
+                if (!args || args->size() != 1) {
+                    FATAL(location, "Function \"echo(number)\" requires exactly one argument.");
+                    return nullptr;
+                } else {
+                    std::vector<llvm::Value *> arguments;
+                    llvm::Value *value = (*args->begin())->generateCode(context);
+                    if (!value) {
+                        FATAL(location, "Invalid argument provided");
+                        return nullptr;
+                    }
+                    arguments.push_back(value);
+                    if (value->getType()->getTypeID() == llvm::Type::DoubleTyID) {
+                        function = context.module->getFunction("echodouble");
+                    } else {
+                        function = context.module->getFunction("echoint");
+                    }
+                    if (!function) {
+                        FATAL(location, "Cannot call \"echo()\" function; may be a bug.");
+                        return nullptr;
+                    }
+                    return llvm::IRBuilder<>(context.getCurrentBlock()).
+                            CreateCall(function, llvm::makeArrayRef(arguments));
+                }
+            } else notFound = true;
+        }
+        if (notFound) {
             FATAL(location, "Undefined function \"" << identifier.name << "\"");
             return nullptr;
         }
@@ -382,7 +411,7 @@ namespace ucml {
         builder.SetInsertPoint(context.getCurrentBlock());
         idValue = (new Identifier(name.location, name.name))->generateCode(context);
         llvm::Value *newValue = builder.CreateAdd(idValue, increment);
-        builder.CreateStore(newValue, Tools::getValueOfIdentifier(context, name.name)->second);
+        builder.CreateStore(newValue, Tools::getValueOfIdentifier(context, name)->second);
         llvm::BranchInst::Create(conditionBlock, context.getCurrentBlock());
         context.setCurrentBlock(afterBlock);
         return nullptr;
@@ -394,7 +423,17 @@ namespace ucml {
             FATAL(location, "Invalid condition given to \"if\" statement.");
             return nullptr;
         }
+        llvm::IRBuilder<> irBuilder(context.getCurrentBlock());
+        conditionValue = irBuilder.CreateOr(conditionValue, irBuilder.getInt64(0));
+        llvm::Type::TypeID conditionType = conditionValue->getType()->getTypeID();
 
+        if (conditionType == conditionValue->getType()->DoubleTyID) {
+            conditionValue = irBuilder.CreateFCmp(llvm::CmpInst::Predicate::FCMP_ONE, conditionValue,
+                                                  llvm::ConstantFP::get(irBuilder.getDoubleTy(), 0.0));
+        } else if (conditionType == conditionValue->getType()->IntegerTyID) {
+            conditionValue = irBuilder.CreateICmp(llvm::CmpInst::Predicate::ICMP_NE, conditionValue,
+                                                  irBuilder.getInt64(0));
+        }
         llvm::Function *function = context.getCurrentBlock()->getParent();
         llvm::BasicBlock
                 *then = llvm::BasicBlock::Create(context.llvmContext, "then", function),
@@ -417,10 +456,33 @@ namespace ucml {
     }
 
     llvm::Value *ReturnStatement::generateCode(Context &context) {
-        // todo: check if outside a function.
-        if (expression) {
-            return llvm::IRBuilder<>(context.getCurrentBlock()).CreateRet(expression->generateCode(context));
+        if (context.getCurrentBlock()->getParent() == context.module->getFunction("main")) {
+            FATAL(location, "Return statement outside a function.");
+            return nullptr;
         }
-        return nullptr;
+
+        llvm::Type *returnType = context.getCurrentBlock()->getParent()->getReturnType();
+        llvm::Value *value = expression->generateCode(context);
+        if (expression) {
+            if (returnType->getTypeID() == llvm::Type::VoidTyID) {
+                FATAL(location, "Void function cannot return any value.");
+                return nullptr;
+            }
+            if (!value) {
+                FATAL(location, "Invalid return value.");
+                return nullptr;
+            }
+            llvm::IRBuilder<> builder(context.getCurrentBlock());
+            if (returnType->getTypeID() == llvm::Type::IntegerTyID &&
+                value->getType()->getTypeID() == llvm::Type::DoubleTyID) {
+                W(location, "Truncating double to fit integer return type.");
+                value = builder.CreateFPToSI(value, returnType);
+            } else if (returnType->getTypeID() == llvm::Type::DoubleTyID &&
+                       value->getType()->getTypeID() == llvm::Type::IntegerTyID) {
+                W(location, "Converting integer to fit double return type.");
+                value = builder.CreateSIToFP(value, returnType);
+            }
+            return llvm::IRBuilder<>(context.getCurrentBlock()).CreateRet(value);
+        } else return llvm::IRBuilder<>(context.getCurrentBlock()).CreateRetVoid();
     }
 }

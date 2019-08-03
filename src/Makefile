@@ -17,7 +17,7 @@ TEST_D  	= ../tests
 TESTER  	= run-tests.sh
 
 
-objects = parser.o lexer.o nodes.o context.o tools.o natives.o main.o
+objects = parser.o lexer.o nodes.o context.o tools.o main.o
 
 default-target: help
 

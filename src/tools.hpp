@@ -45,7 +45,7 @@ namespace ucml {
 
         static llvm::Type *typeOf(const Identifier &type, llvm::LLVMContext &llvmContext);
 
-        static std::pair<llvm::Type *, llvm::Value *> *getValueOfIdentifier(Context &context, const std::string &name);
+        static std::pair<llvm::Type *, llvm::Value *> *getValueOfIdentifier(Context &context, const Identifier &name);
 
         static bool isValidType(const std::string &typeName, bool isFunction = false);
     };
