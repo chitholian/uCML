@@ -1,3 +1,18 @@
+/*
+   Copyright 2019 Atikur Rahman Chitholian
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*/
 #include <vector>
 #include <iostream>
 #include <llvm/Support/TargetSelect.h>
@@ -25,7 +40,38 @@ namespace ucml {
 
     void Tools::createBuiltInFunctions() {
         std::cout << "====> Creating built-in functions ...\n";
-        std::vector<llvm::Type *> arg_types;
+        VariableList arguments;
+        Identifier type({}, "int");
+        Identifier name({}, "value");
+        VariableDeclaration declaration({}, type, name);
+        arguments.push_back(&declaration);
+
+        Identifier funcType({}, "void");
+        Identifier funcName({}, "printi");
+//        FunctionCall call({}, funcName);
+
+        FunctionDeclaration printIntegerDeclaration({}, funcType, funcName, nullptr, &arguments, true);
+        printIntegerDeclaration.generateCode(context);
+
+        Block bodyOfEcho;
+        bodyOfEcho.statements.push_back(&printIntegerDeclaration);
+
+
+        Identifier type2({}, "double");
+        VariableDeclaration declaration2({}, type2, name);
+        arguments.clear();
+        arguments.push_back(&declaration2);
+
+        Identifier funcType2({}, "void");
+        Identifier funcName2({}, "printd");
+//        FunctionCall call2({}, funcName2);
+
+        FunctionDeclaration printDoubleDeclaration({}, funcType2, funcName2, nullptr, &arguments, true);
+        printDoubleDeclaration.generateCode(context);
+
+
+
+        /*std::vector<llvm::Type *> arg_types;
         arg_types.push_back(llvm::Type::getInt8PtrTy(context.llvmContext));
         llvm::FunctionType *functionType = llvm::FunctionType::get(llvm::Type::getInt32Ty(context.llvmContext),
                                                                    arg_types, true);
@@ -33,17 +79,17 @@ namespace ucml {
                                                           llvm::Twine("printf"), context.module);
         function->setCallingConv(llvm::CallingConv::C);
 
-        /* For echo(int) */
+        // For echo(int)
         arg_types = std::vector<llvm::Type *>();
-        arg_types.push_back(llvm::Type::getDoubleTy(context.llvmContext));
+        arg_types.push_back(llvm::Type::getInt64Ty(context.llvmContext));
         functionType = llvm::FunctionType::get(llvm::Type::getVoidTy(context.llvmContext), arg_types, false);
         llvm::Function *echoFunction = llvm::Function::Create(functionType, llvm::Function::InternalLinkage,
                                                               llvm::Twine("echo"),
                                                               context.module);
 
         llvm::BasicBlock *block = llvm::BasicBlock::Create(context.llvmContext, "entry", echoFunction);
-        context.pushBlock(block);
-        const char *formatSpecifier = "%lf\n";
+        context.createNewScope(block);
+        const char *formatSpecifier = "%lld\n";
         llvm::Constant *format = llvm::ConstantDataArray::getString(context.llvmContext, formatSpecifier);
         auto *var = new llvm::GlobalVariable(*context.module, llvm::ArrayType::get(
                 llvm::IntegerType::get(context.llvmContext, 8), strlen(formatSpecifier) + 1), true,
@@ -67,14 +113,12 @@ namespace ucml {
 
         llvm::CallInst::Create(function, makeArrayRef(args), "", block);
         llvm::ReturnInst::Create(context.llvmContext, block);
-        context.popBlock();
+        context.closeCurrentScope();*/
 
         std::cout << "====> Built-in functions are created.\n";
     }
 
     llvm::Function *Tools::generateCode() {
-        std::cout << "====> Generating Code...\n";
-
         std::vector<llvm::Type *> argTypes;
         llvm::FunctionType *functionType = llvm::FunctionType::get(llvm::Type::getVoidTy(context.llvmContext),
                                                                    makeArrayRef(argTypes), false);
@@ -82,10 +126,10 @@ namespace ucml {
                                                               context.module);
         llvm::BasicBlock *block = llvm::BasicBlock::Create(context.llvmContext, "entry", mainFunction, nullptr);
 
-        context.pushBlock(block);
+        context.createNewScope(block);
         codeBlock->generateCode(context);
         llvm::ReturnInst::Create(context.llvmContext, context.getCurrentBlock());
-        context.popBlock();
+        context.closeCurrentScope();
         return mainFunction;
     }
 
@@ -115,20 +159,21 @@ namespace ucml {
         return nullptr;
     }
 
-    llvm::Value *Tools::getValueOfIdentifier(ucml::Context &context, const std::string &name) {
+    std::pair<llvm::Type *, llvm::Value *> *
+    Tools::getValueOfIdentifier(ucml::Context &context, const std::string &name) {
         if (context.isEmpty()) {
             llvm::GlobalValue *globalValue = context.module->getNamedValue(name);
             if (globalValue) {
-                return globalValue;
+                return new std::pair<llvm::Type *, llvm::Value *>(globalValue->getType(), globalValue);
             }
             return nullptr;
         } else if (context.getSymbols().find(name) != context.getSymbols().end()) {
-            return context.getSymbols()[name];
+            return &context.getSymbols()[name];
         } else {
             Scope *parentScope = context.getCurrentScope();
             while (parentScope->parent) {
                 if (parentScope->parent->symbols.find(name) != parentScope->parent->symbols.end()) {
-                    return parentScope->parent->symbols[name];
+                    return &parentScope->parent->symbols[name];
                 }
                 parentScope = parentScope->parent;
             }

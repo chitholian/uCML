@@ -27,8 +27,8 @@ fi
 for f in "$TEST_D/"*.ml;do
 #for f in aaa.ml;do
     echo "Testing file \"$f\":"
-#    "./$PROGRAM" "$f" "$f.ir"
-    "./$PROGRAM" "$f"
+    "./$PROGRAM" "$f" "$f.ir"
+#    "./$PROGRAM" "$f"
     RET=$?
     echo "Return code: $RET"
     echo ""

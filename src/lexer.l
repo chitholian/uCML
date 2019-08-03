@@ -91,12 +91,15 @@ extern              {TOKEN(EXTERN);}
 {INTEGER}           {STORE; return INTEGER;}
 {DOUBLE}            {STORE; return DOUBLE;}
 
-.                   {yyerror("Unrecognized character");}
+.                   {yyerror("Recovering from error by ignoring unrecognized character");}
 
 %%
 
 void yyerror(const char* msg){
-    std::cerr << "E:L" << yylloc.first_line << ":C" << yylloc.first_column << ":" << msg << ", near \"" << yytext << "\"\n";
+    std::cerr << "E:L" << yylloc.first_line << ":C" << yylloc.first_column << ":" << msg;
+    if(*yytext)
+        std::cerr<< ", near \"" << yytext << "\"";
+    std::cerr << ".\n";
 }
 
 void update_location(){
