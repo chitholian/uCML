@@ -331,18 +331,18 @@ declare double @tan(double)
 
 
 ## Compilation and Running
-To compile this program you need `flex`, `bison`, `gcc`, `g++`, `make`, `llvm` be installed.
+To compile this program you need `flex`, `bison`, `gcc`, `g++`, `clang`, `make`, `llvm` be installed.
 
 For `Ubuntu` and its derivatives:
 
 ```sh
-sudo apt install gcc g++ make flex bison llvm-dev
+sudo apt install gcc g++ clang make flex bison llvm-dev
 ```
 
 For `Fedora`, `Red Hat`, `CentOS` :
 
 ```sh
-sudo dnf install flex make gcc g++ bison llvm-devel
+sudo dnf install flex make gcc g++ clang bison llvm-devel
 ```
 
 To build, goto `src` directory and run:
@@ -360,6 +360,30 @@ For more info run:
 make help
 ```
 
-### Bug:
-    - Default parameters for functions.
-    - Segmentation fault may occur if statements follow a return statement in the same block
+## Built and Tested on
+    - Fedora 30 (KDE Plasma Spin)
+        - gcc version 9.1.1 20190503 (Red Hat 9.1.1-1)
+        - bison version 3.0.5
+        - flex version 2.6.4
+        - clang version 8.0.0 (Fedora 8.0.0-1.fc30)
+        - llvm version 8.0.0
+        - Linux Kernel version 5.1.20-300.fc30.x86_64
+        
+## Working
+    - Variable declaration and initialization
+    - Automatic type casting and conversion
+    - User defined functions definition and call
+    - External functions declaration and call
+    - Print both integer and double numbers with echo(number) function call
+    - If-else branching
+    - For loop (upwards and downwards)
+    - Variable scopes (Global, Function and Block scopes)
+    - Integer and Floating point arithmetics (+, -, *, /, %)
+    - Logical operations (==, !=, >=, <=, >, <)
+    - Automatic boolean casting (any nonzero becomes true)
+
+## Not Working
+    - Nested/Local functions (Forbidden)
+    - Default parameters for functions (Bug)
+    - Anonymous functions (Not implemented yet)
+    - Statements following a return statement in the same block may cause segmentation fault (Bug)

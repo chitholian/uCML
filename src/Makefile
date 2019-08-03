@@ -1,12 +1,12 @@
 YACC    	= bison
 LEX     	= flex
 RM      	= rm
-CC			= g++
+CXX			= g++
 CP			= cp
 MKDIR   	= mkdir -p
 LLVMCONFIG	= llvm-config
 
-CPPFLAGS	= -g -Wall -std=c++11 `$(LLVMCONFIG) --cppflags`
+CXXFLAGS	= -g -Wall -std=c++11 `$(LLVMCONFIG) --cxxflags`
 LDFLAGS		= -g -Wall -std=c++11 `$(LLVMCONFIG) --ldflags` -lpthread -ldl -lz -lncurses -rdynamic
 LIBS		= `$(LLVMCONFIG) --libs`
 
@@ -29,11 +29,11 @@ all: $(PROGRAM) test install
 
 $(PROGRAM): $(objects)
 	@echo "############ Linking to build executable ############"
-	$(CC) $(LDFLAGS) $(LIBS) -o $@ $(objects)
+	$(CXX) $(LDFLAGS) $(LIBS) -o $@ $(objects)
 	@echo "############## Build finished: \"$(PROGRAM)\" ###############"
 
 %.o: %.cpp
-	$(CC) $(CPPFLAGS) -c -o $@ $<
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 parser.cpp: parser.y
 	$(YACC) -v -d -o $@ $^

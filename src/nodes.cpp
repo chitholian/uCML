@@ -269,7 +269,7 @@ namespace ucml {
         llvm::Function *function = llvm::Function::Create(functionType,
                                                           (isExternal ? llvm::GlobalValue::ExternalLinkage
                                                                       : llvm::GlobalValue::InternalLinkage),
-                                                          0, identifier.name, context.module);
+                                                          identifier.name, context.module);
         function->setCallingConv(llvm::CallingConv::C);
         if (isExternal)
             return function;
@@ -355,18 +355,21 @@ namespace ucml {
 
     llvm::Value *ForLoop::generateCode(Context &context) {
         llvm::Function *function = context.getCurrentBlock()->getParent();
+        llvm::BasicBlock
+                *initBlock = llvm::BasicBlock::Create(context.llvmContext, "init", function),
+                *conditionBlock = llvm::BasicBlock::Create(context.llvmContext, "cond", function),
+                *loopBlock = llvm::BasicBlock::Create(context.llvmContext, "loop", function),
+                *progressBlock = llvm::BasicBlock::Create(context.llvmContext, "progress", function),
+                *afterBlock = llvm::BasicBlock::Create(context.llvmContext, "after", function);
+        llvm::BranchInst::Create(initBlock, context.getCurrentBlock());
+        context.createNewScope(initBlock);
         llvm::Value *declaration = (new VariableDeclaration(name.location, type, name, &from))->generateCode(context);
         if (!declaration) {
             FATAL(name.location, "Invalid declaration given to loop initialization.");
             return nullptr;
         }
-        llvm::BasicBlock *conditionBlock = llvm::BasicBlock::Create(context.llvmContext, "cond", function),
-                *loopBlock = llvm::BasicBlock::Create(context.llvmContext, "loop", function),
-                *progressBlock = llvm::BasicBlock::Create(context.llvmContext, "progress", function),
-                *afterBlock = llvm::BasicBlock::Create(context.llvmContext, "after", function);
         llvm::BranchInst::Create(conditionBlock, context.getCurrentBlock());
         context.setCurrentBlock(conditionBlock);
-        llvm::IRBuilder<> builder(context.getCurrentBlock());
         llvm::Value *fromValue = from.generateCode(context), *toValue = to.generateCode(context),
                 *idValue = (new Identifier(name.location, name.name))->generateCode(context);
         if (!(fromValue && toValue)) {
@@ -378,6 +381,7 @@ namespace ucml {
             FATAL(type.location, "Non-integer iterator is not supported yet.");
             return nullptr;
         }
+        llvm::IRBuilder<> builder(context.getCurrentBlock());
         // for(x:int in 1 to 9 by 2)... [upwards]
         // or
         // for(x:int in 9 to 1 by -2)... [downwards]
@@ -391,10 +395,9 @@ namespace ucml {
                                                   builder.CreateAnd(xLEFrom, xGTTo));
         llvm::BranchInst::Create(loopBlock, afterBlock, condition, context.getCurrentBlock());
 
-        context.createNewScope(loopBlock);
+        context.setCurrentBlock(loopBlock);
         body.generateCode(context);
         llvm::BranchInst::Create(progressBlock, context.getCurrentBlock());
-        context.closeCurrentScope();
         context.setCurrentBlock(progressBlock);
         llvm::Value *increment = builder.getInt64(1);
         if (by) {
@@ -413,6 +416,7 @@ namespace ucml {
         llvm::Value *newValue = builder.CreateAdd(idValue, increment);
         builder.CreateStore(newValue, Tools::getValueOfIdentifier(context, name)->second);
         llvm::BranchInst::Create(conditionBlock, context.getCurrentBlock());
+        context.closeCurrentScope();
         context.setCurrentBlock(afterBlock);
         return nullptr;
     }

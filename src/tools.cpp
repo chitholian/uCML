@@ -59,7 +59,7 @@ namespace ucml {
 
         llvm::BasicBlock *block = llvm::BasicBlock::Create(context.llvmContext, "entry", echoInteger);
         llvm::IRBuilder<> builder(block);
-        llvm::Constant *format = builder.CreateGlobalStringPtr("%lld\n", ".ext_print_format_lld");
+        auto *format = llvm::cast<llvm::Constant>(builder.CreateGlobalStringPtr("%lld\n", ".ext_print_format_lld"));
         std::vector<llvm::Value *> args;
         args.push_back(format);
         args.push_back(&*echoInteger->arg_begin());
@@ -75,7 +75,7 @@ namespace ucml {
 
         llvm::BasicBlock *block2 = llvm::BasicBlock::Create(context.llvmContext, "entry", echoDouble);
         builder.SetInsertPoint(block2);
-        llvm::Constant *format2 = builder.CreateGlobalStringPtr("%lf\n", ".ext_print_format_lf");
+        auto *format2 = llvm::cast<llvm::Constant>(builder.CreateGlobalStringPtr("%lf\n", ".ext_print_format_lf"));
         args.clear();
         args.push_back(format2);
         args.push_back(&*echoDouble->arg_begin());
