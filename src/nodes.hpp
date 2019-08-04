@@ -41,7 +41,7 @@ namespace ucml {
         virtual ~Node() = default;
     };
 
-    class Statement : public Node {;
+    class Statement : public Node {
     };
 
     class Expression : public Statement {

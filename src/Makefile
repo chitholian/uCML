@@ -7,7 +7,7 @@ MKDIR   	= mkdir -p
 LLVMCONFIG	= llvm-config
 
 CXXFLAGS	= -g -Wall -std=c++11 `$(LLVMCONFIG) --cxxflags`
-LDFLAGS		= -g -Wall -std=c++11 `$(LLVMCONFIG) --ldflags` -lpthread -ldl -lz -lncurses -rdynamic
+LDFLAGS		= -g -Wall -std=c++11 `$(LLVMCONFIG) --ldflags` -lpthread -ldl -rdynamic
 LIBS		= `$(LLVMCONFIG) --libs`
 
 PROGRAM 	= uCML

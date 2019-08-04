@@ -55,7 +55,7 @@ int main(int argc, char *argv[]) {
     std::cout << "====> IR generation completed, dumping now...\n";
     if (argc > 2) {
         std::error_code errorCode;
-        llvm::raw_fd_ostream fileStream(argv[2], errorCode, llvm::sys::fs::FileAccess::FA_Write);
+        llvm::raw_fd_ostream fileStream(argv[2], errorCode, llvm::sys::fs::OpenFlags::F_None);
         if (errorCode.value()) {
             std::cerr << "====> Error! Cannot write to file \"" << argv[2] << "\", " << errorCode.message() << "\n";
             showUsage(argv[0]);
