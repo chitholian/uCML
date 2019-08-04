@@ -334,18 +334,18 @@ declare double @tan(double)
 
 
 ## Compilation and Running
-To compile this program you need `flex`, `bison`, `gcc`, `g++`, `clang`, `make`, `llvm` be installed.
+To compile this program you need `flex`, `bison`, `gcc`, `g++`, `clang`, `make`, `llvm`, `zlib`, `ncurses` be installed.
 
 For `Ubuntu` and its derivatives:
 
 ```sh
-sudo apt install gcc g++ clang make flex bison llvm-dev
+sudo apt install gcc g++ clang make flex bison llvm-dev zlib libncurses
 ```
 
 For `Fedora`, `Red Hat`, `CentOS` :
 
 ```sh
-sudo dnf install flex make gcc g++ clang bison llvm-devel
+sudo dnf install flex make gcc g++ clang bison llvm-devel zlib ncurses
 ```
 
 To build, goto `src` directory and run:

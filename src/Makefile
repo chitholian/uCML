@@ -7,8 +7,8 @@ MKDIR   	= mkdir -p
 LLVMCONFIG	= llvm-config
 
 CXXFLAGS	= -g -Wall -std=c++11 `$(LLVMCONFIG) --cxxflags`
-LDFLAGS		= -g -Wall -std=c++11 `$(LLVMCONFIG) --ldflags` -lpthread -ldl -rdynamic
 LIBS		= `$(LLVMCONFIG) --libs`
+LDFLAGS		= `$(LLVMCONFIG) --ldflags` $(LIBS) -g -Wall -std=c++11 -lpthread -ldl -rdynamic -lz -lncurses
 
 PROGRAM 	= uCML
 PREFIX  	= /usr
@@ -29,7 +29,7 @@ all: $(PROGRAM) test install
 
 $(PROGRAM): $(objects)
 	@echo "############ Linking to build executable ############"
-	$(CXX) -o $@ $(objects) $(LDFLAGS) $(LIBS)
+	$(CXX) -o $@ $(objects) $(LDFLAGS)
 	@echo "############## Build finished: \"$(PROGRAM)\" ###############"
 
 %.o: %.cpp
