@@ -236,11 +236,14 @@ entry:
   %b = alloca i64
   store i64 1, i64* %b
   %tmp = alloca i64
+  br label %init
+
+init:                                             ; preds = %entry
   %i = alloca i64
   store i64 0, i64* %i
   br label %cond
 
-cond:                                             ; preds = %progress, %entry
+cond:                                             ; preds = %progress, %init
   %1 = load i64, i64* %n
   %2 = load i64, i64* %i
   %3 = icmp sge i64 %2, 0

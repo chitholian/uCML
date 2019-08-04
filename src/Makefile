@@ -29,11 +29,11 @@ all: $(PROGRAM) test install
 
 $(PROGRAM): $(objects)
 	@echo "############ Linking to build executable ############"
-	$(CXX) $(LDFLAGS) $(LIBS) -o $@ $(objects)
+	$(CXX) -o $@ $(objects) $(LDFLAGS) $(LIBS)
 	@echo "############## Build finished: \"$(PROGRAM)\" ###############"
 
 %.o: %.cpp
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
+	$(CXX) -c -o $@ $< $(CXXFLAGS)
 
 parser.cpp: parser.y
 	$(YACC) -v -d -o $@ $^
