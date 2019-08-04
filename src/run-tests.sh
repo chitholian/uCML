@@ -13,12 +13,12 @@ show_usage() {
 }
 
 
-if [ "$PROGRAM" == "" ];then
+if [ "$PROGRAM" = "" ];then
     echo "Error! Executable not provided.";
     show_usage;
     exit 1;
 fi
-if [ "$TEST_D" == "" ];then
+if [ "$TEST_D" = "" ];then
     echo "Error! Test-files directory not provided.";
     show_usage;
     exit 2;
